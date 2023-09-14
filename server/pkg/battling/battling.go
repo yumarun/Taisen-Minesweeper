@@ -71,7 +71,6 @@ func Process(matchID int, uid int, myAddr string, opponentAddr string, conn *web
 	// もしまだ決まっていない試合ならinitMatchを呼ぶ
 	if matchID == -1 {
 		if isMatchNotRegistered(myAddr, opponentAddr) {
-			initMatch()
 		}
 	}
 }
