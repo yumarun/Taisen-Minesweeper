@@ -69,10 +69,9 @@ func initMatch(uid1 int, ipAddr1 string, conn1 *websocket.Conn, uid2 int, ipAddr
 func Process(matchID int, uid int, myAddr string, opponentAddr string, conn *websocket.Conn) {
 
 	// もしまだ決まっていない試合ならinitMatchを呼ぶ
-	if matchID == -1 {
-		if isMatchNotRegistered(myAddr, opponentAddr) {
-		}
+	if !isMatchRegistered(myAddr, opponentAddr) {
 	}
+	
 }
 
 func getSortedAddrs(addr1 string, addr2 string) string {
@@ -81,7 +80,7 @@ func getSortedAddrs(addr1 string, addr2 string) string {
 	return addrs[0] + addrs[1]
 }
 
-func isMatchNotRegistered(addr1 string, addr2 string) bool {
+func isMatchRegistered(addr1 string, addr2 string) bool {
 	_, ok := allMatches[getSortedAddrs(addr1, addr2)]
 	return ok
 }

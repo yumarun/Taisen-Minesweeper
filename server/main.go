@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"yumarun/TM_matching/pkg/matching"
 
@@ -93,32 +94,31 @@ func echoAllMessage() {
 
 		log.Println(client_str.msg)
 
-		var rawClientMsg ClientMessageForJson
-		if err := json.Unmarshal([]byte(client_str.msg), &rawClientMsg); err != nil {
-			fmt.Println("json deserialize err: ", err)
-			return
-		}
-
-		// fmt.Println("json ok! state: ", rawClientMsg.State, " msg: ", rawClientMsg.Message)
-		ipAddr := client_str.conn.RemoteAddr().String()
-
-		// mapに登録されているか確認, なかったら登録
-		user, isExistingUser := users[ipAddr]
-		if !isExistingUser {
-			uid := len(users)
-			user = userInfo{uid: uid, state: rawClientMsg.State, conn: client_str.conn}
-			users[ipAddr] = user
-		}
-
-		// userのstateを更新
-		updateUserState(ipAddr, rawClientMsg.State)
+		arr := strings.Split(client_str.msg, "\n")
 
 		// もし「マッチしたい」というメッセージなら
-		if rawClientMsg.State == "matching" {
+		if arr[0] == "matching" {
+			var rawClientMsg ClientMessageForJson
+			if err := json.Unmarshal([]byte(arr[1]), &rawClientMsg); err != nil {
+				fmt.Println("json deserialize err: ", err)
+				return
+			}
+
+			ipAddr := client_str.conn.RemoteAddr().String()
+
+			// mapに登録されているか確認, なかったら登録
+			user, isExistingUser := users[ipAddr]
+			if !isExistingUser {
+				uid := len(users)
+				user = userInfo{uid: uid, state: rawClientMsg.State, conn: client_str.conn}
+				users[ipAddr] = user
+			}
+
+			// userのstateを更新
+			updateUserState(ipAddr, rawClientMsg.State)
 			matching.Process(user.uid, ipAddr, user.conn)
-		} else if rawClientMsg.State == "battling" {
-			// ↓こう書けるように
-			// battle.Process(user.uid, ipAddr, user.conn)
+		} else if arr[0] == "battling" {
+
 		}
 
 	}
