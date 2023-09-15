@@ -39,7 +39,7 @@ public class WebSocketClient : MonoBehaviour
             if (webSocket != null)
             {
                 var json = JsonSerializer("matching", "AAAA");
-                webSocket.Send(json);
+                webSocket.Send("matching\n" + json);
             }
         }
 
@@ -57,7 +57,7 @@ public class WebSocketClient : MonoBehaviour
     {
         Debug.Log("WebSocket opened");
         var json = JsonSerializer("hello", "Hello, WebSocket server!");
-        webSocket.Send(json);
+        webSocket.Send("hello\n" + json);
     }
 
     private void OnMessage(object sender, MessageEventArgs e)
