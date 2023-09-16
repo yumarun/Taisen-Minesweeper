@@ -47,7 +47,7 @@ public class WebSocketClient : MonoBehaviour
         {
             if (webSocket != null)
             {
-                webSocket.Send("BBBBB");
+                webSocket.Send("battling\n" + JsonSerializer2());
             }
         }
 
@@ -74,6 +74,14 @@ public class WebSocketClient : MonoBehaviour
         return json;
     }
 
+    string JsonSerializer2()
+    {
+        var msg = new BattlingPhaseMessageToServer();
+        var json = JsonUtility.ToJson(msg);
+        Debug.Log($"BattlingJson Serizelize test: {json}");
+        return json;
+    }
+
     [Serializable]
     public class MessageToServer
     {
@@ -84,6 +92,25 @@ public class WebSocketClient : MonoBehaviour
         {
             State = state;
             Message = message;
+        }
+    }
+
+    [Serializable]
+    public class BattlingPhaseMessageToServer
+    {
+        public int[] LatestBoard;
+        public bool IsLosed;
+        public int LatestMsgNum;
+        public int LatestAttackPoint;
+        public string OpponentAddr;
+
+        public BattlingPhaseMessageToServer()
+        {
+            LatestBoard = new int[5] { 1, 2, 4, 3, 4};
+            IsLosed = true;
+            LatestMsgNum = 2;
+            LatestAttackPoint = 3;
+            OpponentAddr = "123:345";
         }
     }
 }
