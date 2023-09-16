@@ -10,6 +10,8 @@ public class WebSocketClient : MonoBehaviour
 {
     private WebSocket webSocket;
 
+    string _opponentIpAddr = "";
+
     private void Start()
     {
         string url = ""; // 接続するWebSocketサーバーのurl
@@ -63,6 +65,13 @@ public class WebSocketClient : MonoBehaviour
     private void OnMessage(object sender, MessageEventArgs e)
     {
         Debug.Log("WebSocket message received: " + e.Data);
+
+        string[] msgsp = e.Data.Split(' ');
+        if (msgsp.Length >= 2 && msgsp[0] == "match!!oponent:")
+        {
+            _opponentIpAddr = msgsp[1];
+            Debug.Log($"OppenentAddr: {_opponentIpAddr}");
+        } 
     }
 
     string JsonSerializer(string state, string message)
