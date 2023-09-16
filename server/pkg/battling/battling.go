@@ -1,77 +1,97 @@
 package battling
 
 import (
+	"encoding/json"
+	"fmt"
 	"sort"
 
 	"github.com/gorilla/websocket"
 )
 
+var allMatches = make(map[string]*match)
+var matchNumCount = 0
+
+type msgFromClientJsonFormat struct {
+	LatestBoard       []int
+	IsLosed           bool
+	LatestMsgNum      int
+	LatestAttackPoint int
+	OpponentAddr      string
+}
+
+type msgToClientJsonFormat struct {
+	LatestBoard       []int
+	IsLosed           bool
+	LatestMsgNum      int
+	LatestAttackPoint int
+	OpponentAddr      string
+}
+
 type match struct {
 	matchID int
-	players [2]*gamePlayer
+	uindex  map[string]int
+	clients [2]clientCondition
 }
 
-type gamePlayer struct {
-	info          userInfo
-	latestMessage clientMessage
+type clientCondition struct {
+	latestBoard       []int
+	isLosed           bool
+	latestMsgNum      int
+	latestAttackPoint int
+	conn              *websocket.Conn
+	isReady           bool
 }
 
-func newGamePlayer(info userInfo) *gamePlayer {
-	nGamePlayer := &gamePlayer{
-		info:          info,
-		latestMessage: clientMessage{},
+func initMatch(ip1 string, ip2 string) {
+	matchNumCount++
+	newMatchID := getNewMatchID()
+
+	var uindex = make(map[string]int)
+	setNewUindex(uindex, ip1, ip2)
+
+	newMatch := match{
+		matchID: newMatchID,
+		uindex:  uindex,
+		clients: [2]clientCondition{},
 	}
 
-	return nGamePlayer
+	allMatches[getSortedAddrs(ip1, ip2)] = &newMatch
 }
 
-func newMatch(matchID int, player1 userInfo, player2 userInfo) *match {
+func Process(rawMsg string, conn *websocket.Conn) {
 
-	var players [2]*gamePlayer
-	players[0] = newGamePlayer(player1)
-	players[1] = newGamePlayer(player2)
+	c := msgFromClientJsonFormat{}
+	deserializeMessage(rawMsg, &c)
 
-	nMatch := &match{
-		matchID: matchID,
-		players: players,
+	myIpAddr := conn.RemoteAddr().String()
+
+	if !isMatchRegistered(myIpAddr, c.OpponentAddr) {
+		initMatch(myIpAddr, c.OpponentAddr)
 	}
-	return nMatch
-}
 
-var allMatches = make(map[string]*match)
+	myCond := clientCondition{
+		latestBoard:       c.LatestBoard,
+		isLosed:           c.IsLosed,
+		latestMsgNum:      c.LatestMsgNum,
+		latestAttackPoint: c.LatestAttackPoint,
+		conn:              conn,
+		isReady:           true,
+	}
 
-type userInfo struct {
-	uid    int
-	ipAddr string
-	conn   *websocket.Conn
-}
+	joiningMatch := allMatches[getSortedAddrs(myIpAddr, c.OpponentAddr)]
+	myUindex := joiningMatch.uindex[myIpAddr]
 
-type clientMessage struct {
-	board  boardState
-	msgNum int
-	// あと与えるダメージとか攻撃の有無とか。
-}
-
-type boardState struct {
-}
-
-func initMatch(uid1 int, ipAddr1 string, conn1 *websocket.Conn, uid2 int, ipAddr2 string, conn2 *websocket.Conn) {
-
-	matchNumber := len(allMatches) + 1
-	nMatch := newMatch(
-		matchNumber,
-		userInfo{uid: uid1, ipAddr: ipAddr1, conn: conn1},
-		userInfo{uid: uid2, ipAddr: ipAddr2, conn: conn2},
+	setMyCondition(
+		myCond,
+		&joiningMatch.clients[myUindex],
 	)
-	allMatches[getSortedAddrs(ipAddr1, ipAddr2)] = nMatch
-}
 
-func Process(matchID int, uid int, myAddr string, opponentAddr string, conn *websocket.Conn) {
-
-	// もしまだ決まっていない試合ならinitMatchを呼ぶ
-	if !isMatchRegistered(myAddr, opponentAddr) {
+	if joiningMatch.clients[1-myUindex].isReady {
+		sendOpponentCondition(joiningMatch.clients[1-myUindex], conn)
+	} else {
+		// TODO
 	}
-	
+
 }
 
 func getSortedAddrs(addr1 string, addr2 string) string {
@@ -83,4 +103,43 @@ func getSortedAddrs(addr1 string, addr2 string) string {
 func isMatchRegistered(addr1 string, addr2 string) bool {
 	_, ok := allMatches[getSortedAddrs(addr1, addr2)]
 	return ok
+}
+
+func deserializeMessage(msg string, c *msgFromClientJsonFormat) {
+	if err := json.Unmarshal([]byte(msg), &c); err != nil {
+		fmt.Println("json deserialize err: ", err)
+		return
+	}
+}
+
+func getNewMatchID() int {
+	return matchNumCount - 1
+}
+
+func setNewUindex(uindex map[string]int, ip1 string, ip2 string) {
+	uindex[ip1] = 0
+	uindex[ip2] = 1
+}
+
+func setMyCondition(latestCondition clientCondition, oldCondition *clientCondition) {
+	*oldCondition = latestCondition
+}
+
+func sendOpponentCondition(opponentCond clientCondition, myConn *websocket.Conn) {
+
+	msgToClient := msgToClientJsonFormat{
+		LatestBoard:       opponentCond.latestBoard,
+		IsLosed:           opponentCond.isLosed,
+		LatestMsgNum:      opponentCond.latestMsgNum,
+		LatestAttackPoint: opponentCond.latestAttackPoint,
+		OpponentAddr:      "hello!",
+	}
+
+	json, err := json.Marshal(msgToClient)
+	if err != nil {
+		fmt.Println("json serialize error: ", err)
+		return
+	}
+
+	fmt.Println("msgToC: ", json)
 }

@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"yumarun/TM_matching/pkg/battling"
 	"yumarun/TM_matching/pkg/matching"
 
 	"github.com/gorilla/websocket"
@@ -118,7 +119,7 @@ func echoAllMessage() {
 			updateUserState(ipAddr, rawClientMsg.State)
 			matching.Process(user.uid, ipAddr, user.conn)
 		} else if arr[0] == "battling" {
-
+			battling.Process(arr[1], client_str.conn)
 		}
 
 	}
@@ -155,7 +156,7 @@ func updateUserState(ipAddr string, state string) {
 }
 
 func main() {
-	fmt.Println("Hello, worldd!!")
+	fmt.Println("server start...")
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "welcome to my website!")
 	})
