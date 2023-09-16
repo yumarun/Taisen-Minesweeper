@@ -85,7 +85,7 @@ public class WebSocketClient : MonoBehaviour
 
     string JsonSerializer2()
     {
-        var msg = new BattlingPhaseMessageToServer();
+        var msg = new BattlingPhaseMessageToServer(_opponentIpAddr);
         var json = JsonUtility.ToJson(msg);
         Debug.Log($"BattlingJson Serizelize test: {json}");
         return json;
@@ -113,13 +113,13 @@ public class WebSocketClient : MonoBehaviour
         public int LatestAttackPoint;
         public string OpponentAddr;
 
-        public BattlingPhaseMessageToServer()
+        public BattlingPhaseMessageToServer(string opponentIp)
         {
             LatestBoard = new int[5] { 1, 2, 4, 3, 4};
             IsLosed = true;
             LatestMsgNum = 2;
             LatestAttackPoint = 3;
-            OpponentAddr = "123:345";
+            OpponentAddr = opponentIp;
         }
     }
 }
