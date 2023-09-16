@@ -10,6 +10,8 @@ public class WebSocketClient : MonoBehaviour
 {
     private WebSocket webSocket;
 
+    string _opponentIpAddr = "";
+
     private void Start()
     {
         string url = ""; // 接続するWebSocketサーバーのurl
@@ -47,7 +49,7 @@ public class WebSocketClient : MonoBehaviour
         {
             if (webSocket != null)
             {
-                webSocket.Send("BBBBB");
+                webSocket.Send("battling\n" + JsonSerializer2());
             }
         }
 
@@ -63,6 +65,13 @@ public class WebSocketClient : MonoBehaviour
     private void OnMessage(object sender, MessageEventArgs e)
     {
         Debug.Log("WebSocket message received: " + e.Data);
+
+        string[] msgsp = e.Data.Split(' ');
+        if (msgsp.Length >= 2 && msgsp[0] == "match!!oponent:")
+        {
+            _opponentIpAddr = msgsp[1];
+            Debug.Log($"OppenentAddr: {_opponentIpAddr}");
+        } 
     }
 
     string JsonSerializer(string state, string message)
@@ -71,6 +80,14 @@ public class WebSocketClient : MonoBehaviour
 
         string json = JsonUtility.ToJson(messageToServer);
 
+        return json;
+    }
+
+    string JsonSerializer2()
+    {
+        var msg = new BattlingPhaseMessageToServer(_opponentIpAddr);
+        var json = JsonUtility.ToJson(msg);
+        Debug.Log($"BattlingJson Serizelize test: {json}");
         return json;
     }
 
@@ -84,6 +101,25 @@ public class WebSocketClient : MonoBehaviour
         {
             State = state;
             Message = message;
+        }
+    }
+
+    [Serializable]
+    public class BattlingPhaseMessageToServer
+    {
+        public int[] LatestBoard;
+        public bool IsLosed;
+        public int LatestMsgNum;
+        public int LatestAttackPoint;
+        public string OpponentAddr;
+
+        public BattlingPhaseMessageToServer(string opponentIp)
+        {
+            LatestBoard = new int[5] { 1, 2, 4, 3, 4};
+            IsLosed = true;
+            LatestMsgNum = 2;
+            LatestAttackPoint = 3;
+            OpponentAddr = opponentIp;
         }
     }
 }
