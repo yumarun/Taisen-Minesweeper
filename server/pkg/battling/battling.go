@@ -81,13 +81,18 @@ func Process(rawMsg string, conn *websocket.Conn) {
 	joiningMatch := allMatches[getSortedAddrs(myIpAddr, c.OpponentAddr)]
 	myUindex := joiningMatch.uindex[myIpAddr]
 
+	fmt.Println("addr: ", myIpAddr, " uindex: ", myUindex)
+
 	setMyCondition(
 		myCond,
 		&joiningMatch.clients[myUindex],
 	)
 
 	if joiningMatch.clients[1-myUindex].isReady {
+		fmt.Println(90)
 		sendOpponentCondition(joiningMatch.clients[1-myUindex], conn)
+		fmt.Println(92)
+
 	} else {
 		// TODO
 	}
@@ -141,5 +146,5 @@ func sendOpponentCondition(opponentCond clientCondition, myConn *websocket.Conn)
 		return
 	}
 
-	fmt.Println("msgToC: ", json)
+	fmt.Println("msgToC: ", string(json))
 }

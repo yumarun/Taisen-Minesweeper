@@ -76,15 +76,18 @@ func failMatching(conn *websocket.Conn) {
 }
 
 func okMatching(usr1 userInfo, usr2 userInfo) {
+
+	fmt.Println("match decided! ip1: ", usr1.ipAddr, " ip2: ", usr2.ipAddr)
+
 	usrNumInPool -= 2
 	delete(beInPool, usr1.ipAddr)
 	delete(beInPool, usr2.ipAddr)
 
-	if err := usr1.conn.WriteMessage(1, []byte("match!! oponent: "+usr2.ipAddr)); err != nil {
+	if err := usr1.conn.WriteMessage(1, []byte("match!!oponent: "+usr2.ipAddr)); err != nil {
 		fmt.Println("ok match err: ", err)
 	}
 
-	if err := usr2.conn.WriteMessage(1, []byte("match!! oponent: "+usr1.ipAddr)); err != nil {
+	if err := usr2.conn.WriteMessage(1, []byte("match!!oponent: "+usr1.ipAddr)); err != nil {
 		fmt.Println("ok match err: ", err)
 	}
 }
