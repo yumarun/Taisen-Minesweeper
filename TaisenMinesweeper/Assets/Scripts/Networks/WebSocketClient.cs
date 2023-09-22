@@ -11,6 +11,9 @@ public class WebSocketClient : MonoBehaviour
     private WebSocket webSocket;
 
     string _opponentIpAddr = "";
+    bool _battling = false;
+
+    float _elapsedTimeInBattleSession = 0;
 
     private void Start()
     {
@@ -53,6 +56,16 @@ public class WebSocketClient : MonoBehaviour
             }
         }
 
+        if (_battling)
+        {
+            _elapsedTimeInBattleSession += Time.deltaTime;
+            if (_elapsedTimeInBattleSession > 1f)
+            {
+                _elapsedTimeInBattleSession = 0;
+
+            }
+        }
+
     }
 
     private void OnOpen(object sender, EventArgs e)
@@ -71,6 +84,7 @@ public class WebSocketClient : MonoBehaviour
         {
             _opponentIpAddr = msgsp[1];
             Debug.Log($"OppenentAddr: {_opponentIpAddr}");
+            _battling = true;
         } 
     }
 
@@ -89,6 +103,11 @@ public class WebSocketClient : MonoBehaviour
         var json = JsonUtility.ToJson(msg);
         Debug.Log($"BattlingJson Serizelize test: {json}");
         return json;
+    }
+
+    void SendBattleSessionMessage()
+    {
+
     }
 
     [Serializable]
