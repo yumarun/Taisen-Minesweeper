@@ -7,7 +7,7 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     GameObject _startPanel;
 
-
+    [SerializeField]
     ClientNetworkManager _client;
     bool _matching = false;
     float _matchingElapsedTime = 0;
@@ -42,7 +42,7 @@ public class GameManager : MonoBehaviour
 
     public void OnPlayButtonClicked()
     {
-        _client = new ClientNetworkManager(OnMatchDecided);
+        _client.Init();
         MatchStart();
         _startPanel.SetActive(false);
     }
@@ -52,7 +52,7 @@ public class GameManager : MonoBehaviour
         _matching = true;
     }
 
-    void OnMatchDecided()
+    public void OnMatchDecided()
     {
         Debug.Log("MATCH_DECIDED");
         _matching = false;
