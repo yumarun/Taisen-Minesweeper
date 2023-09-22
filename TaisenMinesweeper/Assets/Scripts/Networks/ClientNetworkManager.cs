@@ -51,6 +51,14 @@ public class ClientNetworkManager
         _webSocket.Send("matching\n" + json);
     }
 
+    public void SendBoardInfo()
+    {
+        var msg = new BattlingPhaseMessageToServer(_opponentIpAddr);
+        string json = JsonUtility.ToJson(msg);
+
+        _webSocket.Send("battling\n" + json);
+    }
+
     [Serializable]
     public class MatchingPhaseMessageToServer
     {
@@ -61,6 +69,25 @@ public class ClientNetworkManager
         {
             State = state;
             Message = message;
+        }
+    }
+
+    [Serializable]
+    public class BattlingPhaseMessageToServer
+    {
+        public int[] LatestBoard;
+        public bool IsLosed;
+        public int LatestMsgNum;
+        public int LatestAttackPoint;
+        public string OpponentAddr;
+
+        public BattlingPhaseMessageToServer(string opponentIp)
+        {
+            LatestBoard = new int[5] { 1, 2, 4, 3, 4 };
+            IsLosed = true;
+            LatestMsgNum = 2;
+            LatestAttackPoint = 3;
+            OpponentAddr = opponentIp;
         }
     }
 }

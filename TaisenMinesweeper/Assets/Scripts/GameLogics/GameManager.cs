@@ -9,9 +9,13 @@ public class GameManager : MonoBehaviour
 
 
     ClientNetworkManager _client;
-    bool _matching;
+    bool _matching = false;
     float _matchingElapsedTime = 0;
-    float MATCHING_INTERVAL = 5f;
+    const float MATCHING_INTERVAL = 5f;
+
+    bool _battling = false;
+    float _battlingElapsedTime = 0;
+    const float BATTLING_INTERVAL = 5f;
 
     void Update()
     {
@@ -22,6 +26,16 @@ public class GameManager : MonoBehaviour
             {
                 _matchingElapsedTime = 0;
                 _client.RequestMatching();
+            }
+        }
+
+        if (_battling)
+        {
+            _battlingElapsedTime += Time.deltaTime;
+            if (_battlingElapsedTime > BATTLING_INTERVAL )
+            {
+                _battlingElapsedTime = 0;
+                _client.SendBoardInfo();
             }
         }
     }
@@ -42,5 +56,6 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("MATCH_DECIDED");
         _matching = false;
+        _battling = true;
     }
 }
