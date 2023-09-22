@@ -41,5 +41,6 @@ public class GameManager : MonoBehaviour
     void OnMatchDecided()
     {
         Debug.Log("MATCH_DECIDED");
+        _matching = false;
     }
 }
