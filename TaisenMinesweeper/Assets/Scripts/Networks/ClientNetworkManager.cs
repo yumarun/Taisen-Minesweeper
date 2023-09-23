@@ -8,12 +8,20 @@ using WebSocketSharp;
 
 public class ClientNetworkManager: MonoBehaviour 
 {
-    [SerializeField] 
     UnityEvent _onMatchingFinished;
-
+    [SerializeField] GameManager _gameManager;
 
     WebSocket _webSocket;
     string _opponentIpAddr = "";
+
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Alpha0))
+        {
+            _onMatchingFinished.Invoke();
+        }
+    }
 
 
     public void Init()
@@ -27,6 +35,9 @@ public class ClientNetworkManager: MonoBehaviour
         _webSocket.OnOpen += OnOpen;
         _webSocket.OnMessage += OnMessage;
         _webSocket.Connect();
+
+        _onMatchingFinished = new UnityEvent();
+        _onMatchingFinished.AddListener(_gameManager.OnMatchDecided);
     }
 
     void OnOpen(object sender, EventArgs e)
@@ -45,6 +56,7 @@ public class ClientNetworkManager: MonoBehaviour
             _onMatchingFinished.Invoke();
         }
     }
+
 
     public void RequestMatching()
     {
@@ -91,6 +103,15 @@ public class ClientNetworkManager: MonoBehaviour
             LatestMsgNum = 2;
             LatestAttackPoint = 3;
             OpponentAddr = opponentIp;
+        }
+    }
+
+    void OnDestroy()
+    {
+        if (_webSocket != null)
+        {
+            _webSocket.Close();
+            _webSocket = null;
         }
     }
 }

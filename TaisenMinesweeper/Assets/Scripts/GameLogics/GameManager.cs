@@ -58,4 +58,9 @@ public class GameManager : MonoBehaviour
         _matching = false;
         _battling = true;
     }
+
+    //public void EchoHello()
+    //{
+    //    Debug.Log("Hello");
+    //}
 }
