@@ -17,6 +17,9 @@ public class GameManager : MonoBehaviour
     float _battlingElapsedTime = 0;
     const float BATTLING_INTERVAL = 5f;
 
+    [SerializeField]
+    MinesweeperManager _minesweeperManager;
+
     void Update()
     {
         if (_matching)
@@ -55,12 +58,14 @@ public class GameManager : MonoBehaviour
     public void OnMatchDecided()
     {
         Debug.Log("MATCH_DECIDED");
+        InitGame();
+
         _matching = false;
         _battling = true;
     }
 
-    //public void EchoHello()
-    //{
-    //    Debug.Log("Hello");
-    //}
+    void InitGame()
+    {
+        _minesweeperManager.GoingInit = true;
+    }
 }

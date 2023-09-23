@@ -20,48 +20,80 @@ public class MinesweeperManager : MonoBehaviour
     [SerializeField]
     CellImageAsset _cellImageAsset;
 
-    void Start()
-    {
-        
-        _board = new Board(_cellImageAsset, _cellPrefab, _uiManager);
+    public bool GoingInit = false;
+    bool _initializeFinished = false;
 
+    //void Start()
+    //{
+        
+    //    _board = new Board(_cellImageAsset, _cellPrefab, _uiManager);
+
+
+    //    var tmpCellsinfo = MakeCellsInfo(Board.BoardHeight, Board.BoardWidth, Board.AmountOfMinesAtFirst);
+
+    //    _board.Make(tmpCellsinfo);
+
+    //    _uiManager.InitializeUI(Board.AmountOfMinesAtFirst);
+
+    //    _addLines = new LinesAdder(Board.BoardWidth, Board.BoardHeight);
+    //}
+
+    public void Init()
+    {
+
+        _board = new Board(_cellImageAsset, _cellPrefab, _uiManager);
 
         var tmpCellsinfo = MakeCellsInfo(Board.BoardHeight, Board.BoardWidth, Board.AmountOfMinesAtFirst);
 
         _board.Make(tmpCellsinfo);
 
+
         _uiManager.InitializeUI(Board.AmountOfMinesAtFirst);
 
-        _addLines = new LinesAdder(Board.BoardWidth, Board.BoardHeight);
-    }
 
+        _addLines = new LinesAdder(Board.BoardWidth, Board.BoardHeight);
+
+
+    }
     
 
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
-        {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
 
-            if (Physics.Raycast(ray, out hit))
-            {
-                var clickedCell = hit.collider.gameObject.GetComponent<Cell>();
-                _board.TryOpenCell(clickedCell.Y, clickedCell.X);
-            }
+        if (GoingInit)
+        {
+            Init();
+            GoingInit = false;
+            _initializeFinished = true;
         }
 
-        if (Input.GetMouseButtonDown(1))
+        if (_initializeFinished)
         {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-
-            if (Physics.Raycast(ray, out hit))
+            if (Input.GetMouseButtonDown(0))
             {
-                var clickedCell = hit.collider.gameObject.GetComponent<Cell>();
-                _board.TryFlagCell(clickedCell.Y, clickedCell.X);
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                RaycastHit hit;
+
+                if (Physics.Raycast(ray, out hit))
+                {
+                    var clickedCell = hit.collider.gameObject.GetComponent<Cell>();
+                    _board.TryOpenCell(clickedCell.Y, clickedCell.X);
+                }
+            }
+
+            if (Input.GetMouseButtonDown(1))
+            {
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                RaycastHit hit;
+
+                if (Physics.Raycast(ray, out hit))
+                {
+                    var clickedCell = hit.collider.gameObject.GetComponent<Cell>();
+                    _board.TryFlagCell(clickedCell.Y, clickedCell.X);
+                }
             }
         }
+        
     }
 
     
@@ -80,12 +112,13 @@ public class MinesweeperManager : MonoBehaviour
         List<int> minePoss= new List<int>();
         while (minePoss.Count < AmountOfMines)
         {
-            var val = UnityEngine.Random.Range(0, boardHeight * boardHeight - 1);
+            int val = UnityEngine.Random.Range(0, boardHeight * boardWidth - 1);
             if (!minePoss.Contains(val))
             {
                 minePoss.Add(val);
             }
         }
+
         foreach (var val in minePoss)
         {
             dst[val / boardWidth, val % boardWidth].WrittenValue = -1;
