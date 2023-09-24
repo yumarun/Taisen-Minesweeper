@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -20,6 +21,9 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     MinesweeperManager _minesweeperManager;
 
+    [SerializeField]
+    MinimapManager _minimapManager;
+
     void Update()
     {
         if (_matching)
@@ -38,7 +42,8 @@ public class GameManager : MonoBehaviour
             if (_battlingElapsedTime > BATTLING_INTERVAL )
             {
                 _battlingElapsedTime = 0;
-                _client.SendBoardInfo();
+
+                _client.SendBoardInfo(_minesweeperManager.GetBoardState());
             }
         }
     }
@@ -67,5 +72,6 @@ public class GameManager : MonoBehaviour
     void InitGame()
     {
         _minesweeperManager.GoingInit = true;
+        _minimapManager.GoCreateMinimap = true;
     }
 }

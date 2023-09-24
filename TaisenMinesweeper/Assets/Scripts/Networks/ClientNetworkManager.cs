@@ -13,6 +13,8 @@ public class ClientNetworkManager: MonoBehaviour
 
     WebSocket _webSocket;
     string _opponentIpAddr = "";
+    int _nowBattlingMsgNum = 0;
+
 
 
     private void Update()
@@ -48,8 +50,8 @@ public class ClientNetworkManager: MonoBehaviour
     void OnMessage(object sender, MessageEventArgs e)
     {
         Debug.Log("WebSocket message received: " + e.Data);
-        string[] msgsp = e.Data.Split(' ');
-        if (msgsp.Length >= 2 && msgsp[0] == "match!!oponent:")
+        string[] msgsp = e.Data.Split('\n');
+        if (msgsp.Length >= 2 && msgsp[0] == "match!op:")
         {
             _opponentIpAddr = msgsp[1];
             Debug.Log($"Matchi finished. OppenentAddr: {_opponentIpAddr}");
@@ -66,9 +68,9 @@ public class ClientNetworkManager: MonoBehaviour
         _webSocket.Send("matching\n" + json);
     }
 
-    public void SendBoardInfo()
+    public void SendBoardInfo(int[] board)
     {
-        var msg = new BattlingPhaseMessageToServer(_opponentIpAddr);
+        var msg = new BattlingPhaseMessageToServer(board, false, _nowBattlingMsgNum++, 0, _opponentIpAddr);
         string json = JsonUtility.ToJson(msg);
 
         _webSocket.Send("battling\n" + json);
@@ -96,12 +98,12 @@ public class ClientNetworkManager: MonoBehaviour
         public int LatestAttackPoint;
         public string OpponentAddr;
 
-        public BattlingPhaseMessageToServer(string opponentIp)
+        public BattlingPhaseMessageToServer(int[] boardState, bool isLosed, int msgNum, int ap, string opponentIp)
         {
-            LatestBoard = new int[5] { 1, 2, 4, 3, 4 };
-            IsLosed = true;
-            LatestMsgNum = 2;
-            LatestAttackPoint = 3;
+            LatestBoard = boardState;
+            IsLosed = isLosed;
+            LatestMsgNum = msgNum;
+            LatestAttackPoint = ap;
             OpponentAddr = opponentIp;
         }
     }

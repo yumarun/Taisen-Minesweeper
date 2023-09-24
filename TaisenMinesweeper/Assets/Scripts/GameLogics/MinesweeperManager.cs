@@ -23,21 +23,7 @@ public class MinesweeperManager : MonoBehaviour
     public bool GoingInit = false;
     bool _initializeFinished = false;
 
-    //void Start()
-    //{
-        
-    //    _board = new Board(_cellImageAsset, _cellPrefab, _uiManager);
-
-
-    //    var tmpCellsinfo = MakeCellsInfo(Board.BoardHeight, Board.BoardWidth, Board.AmountOfMinesAtFirst);
-
-    //    _board.Make(tmpCellsinfo);
-
-    //    _uiManager.InitializeUI(Board.AmountOfMinesAtFirst);
-
-    //    _addLines = new LinesAdder(Board.BoardWidth, Board.BoardHeight);
-    //}
-
+    
     public void Init()
     {
 
@@ -163,5 +149,37 @@ public class MinesweeperManager : MonoBehaviour
     {
         _addLines.AddLines(ref _board);
 
+    }
+
+    public int[] GetBoardState()
+    {
+        var ret = new int[Board.BoardWidth * Board.BoardHeight];
+
+        var nowState = _board.GetState();
+        for (int y = 0; y < Board.BoardHeight; y++)
+        {
+            for (int x = 0; x < Board.BoardWidth; x++)
+            {
+                if (nowState[y, x].IsSafeBomb)
+                {
+                    ret[x + y * Board.BoardWidth] = 10;
+                }
+                else if (nowState[y, x].IsFlagged)
+                {
+                    ret[x + y * Board.BoardWidth] = 9;
+
+                }
+                else if (!nowState[y, x].IsOpend)
+                {
+                    ret[x + y * Board.BoardWidth] = -1;
+                }
+                else
+                {
+                    ret[x + y * Board.BoardWidth] = nowState[y, x].WrittenValue;
+                }
+            }
+        }
+
+        return ret;
     }
 }
