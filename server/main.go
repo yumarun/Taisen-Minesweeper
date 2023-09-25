@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strconv"
 	"strings"
 
 	"yumarun/TM_matching/pkg/battling"
@@ -74,14 +73,14 @@ func clientMessageHandler(w http.ResponseWriter, r *http.Request) {
 	defer conn.Close()
 
 	for {
-		messageType, message, err := conn.ReadMessage()
+		_, message, err := conn.ReadMessage()
 		if err != nil {
 			log.Println("read error: ", err)
 			onClientDisconnected(r.RemoteAddr)
 
 			break
 		}
-		log.Printf("received %s, type: %s from %s", message, strconv.Itoa(messageType), r.RemoteAddr)
+		// log.Printf("received %s, type: %s from %s", message, strconv.Itoa(messageType), r.RemoteAddr)
 
 		clientMsgChan <- ClientMessage{msg: string(message), conn: conn}
 
@@ -93,9 +92,8 @@ func echoAllMessage() {
 
 		client_str := <-clientMsgChan
 
-		log.Println(client_str.msg)
-
 		arr := strings.Split(client_str.msg, "\n")
+		log.Println("arr0: ", arr[0], " arr1: ", arr[1], " from: ", client_str.conn.RemoteAddr().String())
 
 		// もし「マッチしたい」というメッセージなら
 		if arr[0] == "matching" {

@@ -10,6 +10,7 @@ import (
 
 var allMatches = make(map[string]*match)
 var matchNumCount = 0
+var boardWidth = 15
 
 type msgFromClientJsonFormat struct {
 	LatestBoard       []int
@@ -89,9 +90,7 @@ func Process(rawMsg string, conn *websocket.Conn) {
 	)
 
 	if joiningMatch.clients[1-myUindex].isReady {
-		fmt.Println(90)
 		sendOpponentCondition(joiningMatch.clients[1-myUindex], conn)
-		fmt.Println(92)
 
 	} else {
 		// TODO
@@ -137,7 +136,7 @@ func sendOpponentCondition(opponentCond clientCondition, myConn *websocket.Conn)
 		IsLosed:           opponentCond.isLosed,
 		LatestMsgNum:      opponentCond.latestMsgNum,
 		LatestAttackPoint: opponentCond.latestAttackPoint,
-		OpponentAddr:      "hello!",
+		OpponentAddr:      opponentCond.conn.RemoteAddr().String(),
 	}
 
 	json, err := json.Marshal(msgToClient)
@@ -147,4 +146,7 @@ func sendOpponentCondition(opponentCond clientCondition, myConn *websocket.Conn)
 	}
 
 	fmt.Println("msgToC: ", string(json))
+	if err := myConn.WriteMessage(1, []byte("battling\n"+string(json))); err != nil {
+		fmt.Println("writeMessage err: ", err)
+	}
 }
