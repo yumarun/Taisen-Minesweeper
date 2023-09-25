@@ -16,7 +16,7 @@ public class GameManager : MonoBehaviour
 
     bool _battling = false;
     float _battlingElapsedTime = 0;
-    const float BATTLING_INTERVAL = 5f;
+    const float BATTLING_INTERVAL = 3f;
 
     [SerializeField]
     MinesweeperManager _minesweeperManager;
@@ -73,5 +73,11 @@ public class GameManager : MonoBehaviour
     {
         _minesweeperManager.GoingInit = true;
         _minimapManager.GoCreateMinimap = true;
+    }
+
+    public void OnOpponentBoardSent(int[] board)
+    {
+        _minimapManager.SetMinimapToBuffer(board);
+        _minimapManager.GoUpdateMinimap = true;
     }
 }

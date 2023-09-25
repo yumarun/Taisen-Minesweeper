@@ -17,13 +17,6 @@ public class ClientNetworkManager: MonoBehaviour
 
 
 
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Alpha0))
-        {
-            _onMatchingFinished.Invoke();
-        }
-    }
 
 
     public void Init()
@@ -56,6 +49,14 @@ public class ClientNetworkManager: MonoBehaviour
             _opponentIpAddr = msgsp[1];
             Debug.Log($"Matchi finished. OppenentAddr: {_opponentIpAddr}");
             _onMatchingFinished.Invoke();
+        }
+        else if (msgsp[0] == "battling")
+        {
+            // êÊÇ…jsonÇâêÕ
+            var msg = JsonUtility.FromJson<BattlingPhaseMessageFromServer>(msgsp[1]);
+
+            _gameManager.OnOpponentBoardSent(msg.LatestBoard);
+
         }
     }
 
@@ -99,6 +100,25 @@ public class ClientNetworkManager: MonoBehaviour
         public string OpponentAddr;
 
         public BattlingPhaseMessageToServer(int[] boardState, bool isLosed, int msgNum, int ap, string opponentIp)
+        {
+            LatestBoard = boardState;
+            IsLosed = isLosed;
+            LatestMsgNum = msgNum;
+            LatestAttackPoint = ap;
+            OpponentAddr = opponentIp;
+        }
+    }
+
+    [Serializable]
+    public class BattlingPhaseMessageFromServer
+    {
+        public int[] LatestBoard;
+        public bool IsLosed;
+        public int LatestMsgNum;
+        public int LatestAttackPoint;
+        public string OpponentAddr;
+
+        public BattlingPhaseMessageFromServer(int[] boardState, bool isLosed, int msgNum, int ap, string opponentIp)
         {
             LatestBoard = boardState;
             IsLosed = isLosed;
