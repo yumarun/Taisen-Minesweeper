@@ -49,7 +49,6 @@ public class LinesAdder
 
         board.AddAmountOfMines(addedMinesNum - (safeMinesNum + unsafeMinesNum));
 
-        board.AddAmountOfOpenedCells(-(_addedLinesLength * _boardWidth - safeMinesNum));
     }
 
 

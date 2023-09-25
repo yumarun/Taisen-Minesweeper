@@ -80,11 +80,9 @@ public class MinimapManager : MonoBehaviour
     public void SetMinimapToBuffer(int[] board)
     {
         _opponentBoardBuffer = board;
-        Debug.Log("SetMinimapToBuffer fin");
     }
     void UpdateMinimap() 
     {
-        Debug.Log($"_opponentBoardBuffer: {_opponentBoardBuffer[0]}");
         // バッファの情報からminimapを更新
         for (int y = 0; y < Board.BoardHeight; y++)
         {

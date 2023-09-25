@@ -16,9 +16,6 @@ public class ClientNetworkManager: MonoBehaviour
     int _nowBattlingMsgNum = 0;
 
 
-
-
-
     public void Init()
     {
         string url = "";
@@ -71,7 +68,8 @@ public class ClientNetworkManager: MonoBehaviour
 
     public void SendBoardInfo(int[] board)
     {
-        var msg = new BattlingPhaseMessageToServer(board, false, _nowBattlingMsgNum++, 0, _opponentIpAddr);
+        var amountOfOpenedCells = _gameManager.GetOpenedCellNum();
+        var msg = new BattlingPhaseMessageToServer(board, false, _nowBattlingMsgNum++, amountOfOpenedCells, _opponentIpAddr);
         string json = JsonUtility.ToJson(msg);
 
         _webSocket.Send("battling\n" + json);

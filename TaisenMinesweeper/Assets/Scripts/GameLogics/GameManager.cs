@@ -80,4 +80,9 @@ public class GameManager : MonoBehaviour
         _minimapManager.SetMinimapToBuffer(board);
         _minimapManager.GoUpdateMinimap = true;
     }
+
+    public int GetOpenedCellNum()
+    {
+        return _minesweeperManager.GetOpenedCellNum();
+    }
 }

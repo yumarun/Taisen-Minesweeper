@@ -57,7 +57,7 @@ public class Board
         }
     }
 
-    public void TryOpenCell(int y, int x)
+    public void TryOpenCell(int y, int x, bool fromClick)
     {
         if (_cells[y, x].IsOpend)
         {
@@ -84,7 +84,7 @@ public class Board
         // ”Žšƒ}ƒX‚ðˆø‚¢‚½‚Æ‚« // TODO: Žü‚è‚Ì”š’e‚ðŒ©‚Â‚¯‚Ä‚»‚Ì”š’e‚É‚Â‚¢‚ÄCcheck‚ð•t‚¯‚½‚è‚·‚é
         if (_cells[y, x].WrittenValue > 0)
         {
-            _cells[y, x].Open(_cellImageAsset._numberImages[_cells[y, x].WrittenValue], ref _amountOfOpenedCells);
+            _cells[y, x].Open(_cellImageAsset._numberImages[_cells[y, x].WrittenValue], ref _amountOfOpenedCells, fromClick);
             SearchSafeMine(y, x);
             if (IsNowMeetingClearConditions())
             {
@@ -112,7 +112,7 @@ public class Board
                 continue;
             }
 
-            _cells[ny, nx].Open(_cellImageAsset._numberImages[0], ref _amountOfOpenedCells);
+            _cells[ny, nx].Open(_cellImageAsset._numberImages[0], ref _amountOfOpenedCells, fromClick);
             SearchSafeMine(ny, nx);
 
 
@@ -138,7 +138,7 @@ public class Board
                 }
                 else
                 {
-                    _cells[nny, nnx].Open(_cellImageAsset._numberImages[_cells[nny, nnx].WrittenValue], ref _amountOfOpenedCells);
+                    _cells[nny, nnx].Open(_cellImageAsset._numberImages[_cells[nny, nnx].WrittenValue], ref _amountOfOpenedCells, fromClick);
                     SearchSafeMine(nny, nnx);
 
                 }
@@ -270,14 +270,14 @@ public class Board
         {
             if (_cells[addedLinesLength, x].WrittenValue == 0)
             {
-                TryOpenCell(addedLinesLength - 1, x);
+                TryOpenCell(addedLinesLength - 1, x, false);
                 if (x != 0)
                 {
-                    TryOpenCell(addedLinesLength - 1, x - 1);
+                    TryOpenCell(addedLinesLength - 1, x - 1, false);
                 }
                 if (x != BoardWidth - 1)
                 {
-                    TryOpenCell(addedLinesLength - 1, x + 1);
+                    TryOpenCell(addedLinesLength - 1, x + 1, false);
                 }
             }
         }
@@ -348,5 +348,10 @@ public class Board
     public void AddAmountOfOpenedCells(int amount)
     {
         _amountOfOpenedCells += amount;
+    }
+
+    public int GetAmountOfOpenedCells()
+    {
+        return _amountOfOpenedCells;
     }
 }

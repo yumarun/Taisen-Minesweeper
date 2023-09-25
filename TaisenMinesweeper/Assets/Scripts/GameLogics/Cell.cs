@@ -54,7 +54,7 @@ public class Cell : MonoBehaviour
         IsFlagged= false;
     }
 
-    public void Open(Sprite sprite, ref int amountOfOpendCells)
+    public void Open(Sprite sprite, ref int amountOfOpendCells, bool fromClick)
     {
         if (IsFlagged)
         {
@@ -63,7 +63,11 @@ public class Cell : MonoBehaviour
 
         IsOpend= true;
         gameObject.GetComponent<SpriteRenderer>().sprite= sprite;
-        amountOfOpendCells++;
+
+        if (fromClick)
+        {
+            amountOfOpendCells++;
+        }
 
         UIManager.SetOpenedCountText(amountOfOpendCells);
     }

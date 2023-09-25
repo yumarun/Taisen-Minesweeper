@@ -63,7 +63,7 @@ public class MinesweeperManager : MonoBehaviour
                 if (Physics.Raycast(ray, out hit))
                 {
                     var clickedCell = hit.collider.gameObject.GetComponent<Cell>();
-                    _board.TryOpenCell(clickedCell.Y, clickedCell.X);
+                    _board.TryOpenCell(clickedCell.Y, clickedCell.X, true);
                 }
             }
 
@@ -181,5 +181,10 @@ public class MinesweeperManager : MonoBehaviour
         }
 
         return ret;
+    }
+
+    public int GetOpenedCellNum()
+    {
+        return _board.GetAmountOfOpenedCells();
     }
 }
