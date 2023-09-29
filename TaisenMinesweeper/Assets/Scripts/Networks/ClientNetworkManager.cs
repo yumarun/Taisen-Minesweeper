@@ -94,7 +94,7 @@ public class ClientNetworkManager: MonoBehaviour
         public int[] LatestBoard;
         public bool IsLosed;
         public int LatestMsgNum;
-        public int LatestAttackPoint;
+        public int TotalNumberOfUsrDefusedCells;
         public string OpponentAddr;
 
         public BattlingPhaseMessageToServer(int[] boardState, bool isLosed, int msgNum, int ap, string opponentIp)
@@ -102,7 +102,7 @@ public class ClientNetworkManager: MonoBehaviour
             LatestBoard = boardState;
             IsLosed = isLosed;
             LatestMsgNum = msgNum;
-            LatestAttackPoint = ap;
+            TotalNumberOfUsrDefusedCells = ap;
             OpponentAddr = opponentIp;
         }
     }
