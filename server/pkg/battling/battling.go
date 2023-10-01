@@ -10,7 +10,8 @@ import (
 
 var allMatches = make(map[string]*match)
 var matchNumCount = 0
-var boardWidth = 15
+
+var MAX_INFLICTED_DAMAGE = 50
 
 type msgFromClientJsonFormat struct {
 	LatestBoard                  []int
@@ -38,7 +39,7 @@ type clientCondition struct {
 	latestBoard               []int
 	isLosed                   bool
 	latestMsgNum              int
-	latestAttackPoint         int
+	attackPointToBeInflicted  int
 	conn                      *websocket.Conn
 	isReady                   bool
 	totalDamageInflictedToOpp int
@@ -76,21 +77,21 @@ func Process(rawMsg string, conn *websocket.Conn) {
 
 	myUindex := joiningMatch.uindex[myIpAddr]
 
-	// total damages user{myUindex} inflicted to the opponent before.
-	latestTotalDamageInflictedToOpp := joiningMatch.clients[myUindex].totalDamageInflictedToOpp + joiningMatch.clients[myUindex].latestAttackPoint
+	// TODO: ダメージを一回のダメージ上限を作れるように。サーバー側をいじる.
+
+	// update client's total num of opened cells to the latest one.
+	joiningMatch.clients[myUindex].totalNumOfOpenedCells = c.TotalNumberOfUsrDefusedCells
 
 	myCond := clientCondition{
 		latestBoard:               c.LatestBoard,
 		isLosed:                   c.IsLosed,
 		latestMsgNum:              c.LatestMsgNum,
-		latestAttackPoint:         calculateDamegeToInflictToOpponent(latestTotalDamageInflictedToOpp, c.TotalNumberOfUsrDefusedCells),
+		attackPointToBeInflicted:  calculateDamegeToInflictToOpponent(joiningMatch.clients[myUindex].totalDamageInflictedToOpp, joiningMatch.clients[myUindex].totalNumOfOpenedCells),
 		conn:                      conn,
 		isReady:                   true,
-		totalDamageInflictedToOpp: latestTotalDamageInflictedToOpp,
-		totalNumOfOpenedCells:     c.TotalNumberOfUsrDefusedCells,
+		totalDamageInflictedToOpp: joiningMatch.clients[myUindex].totalDamageInflictedToOpp,
+		totalNumOfOpenedCells:     joiningMatch.clients[myUindex].totalNumOfOpenedCells,
 	}
-
-	fmt.Println("latestTotalDamageInflictedToOpp: ", latestTotalDamageInflictedToOpp)
 
 	fmt.Println("addr: ", myIpAddr, " uindex: ", myUindex)
 
@@ -101,6 +102,7 @@ func Process(rawMsg string, conn *websocket.Conn) {
 
 	if joiningMatch.clients[1-myUindex].isReady {
 		sendOpponentCondition(joiningMatch.clients[1-myUindex], conn)
+		updateOppCondWithDmgHeInflicted(getSortedAddrs(myIpAddr, c.OpponentAddr), 1-myUindex)
 
 	} else {
 		// TODO
@@ -145,7 +147,7 @@ func sendOpponentCondition(opponentCond clientCondition, myConn *websocket.Conn)
 		LatestBoard:       opponentCond.latestBoard,
 		IsLosed:           opponentCond.isLosed,
 		LatestMsgNum:      opponentCond.latestMsgNum,
-		LatestAttackPoint: opponentCond.latestAttackPoint,
+		LatestAttackPoint: opponentCond.attackPointToBeInflicted,
 		OpponentAddr:      opponentCond.conn.RemoteAddr().String(),
 	}
 
@@ -172,5 +174,20 @@ func sendOpponentCondition(opponentCond clientCondition, myConn *websocket.Conn)
 }
 
 func calculateDamegeToInflictToOpponent(totalDamageInflictedToOpp int, totalNumOfOpenedCells int) int {
-	return ((totalNumOfOpenedCells - totalDamageInflictedToOpp) / 10) * 10
+	damage := ((totalNumOfOpenedCells - totalDamageInflictedToOpp) / 10) * 10
+	damage = Min4int(damage, MAX_INFLICTED_DAMAGE)
+	return damage
+}
+
+func Min4int(a int, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func updateOppCondWithDmgHeInflicted(matchIdx string, opponentUindex int) {
+	opponentCondition := &allMatches[matchIdx].clients[opponentUindex]
+	opponentCondition.totalDamageInflictedToOpp += opponentCondition.attackPointToBeInflicted
+	opponentCondition.attackPointToBeInflicted = 0
 }
