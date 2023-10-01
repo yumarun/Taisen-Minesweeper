@@ -13,11 +13,11 @@ var matchNumCount = 0
 var boardWidth = 15
 
 type msgFromClientJsonFormat struct {
-	LatestBoard       []int
-	IsLosed           bool
-	LatestMsgNum      int
-	LatestAttackPoint int
-	OpponentAddr      string
+	LatestBoard                  []int
+	IsLosed                      bool
+	LatestMsgNum                 int
+	TotalNumberOfUsrDefusedCells int
+	OpponentAddr                 string
 }
 
 type msgToClientJsonFormat struct {
@@ -35,12 +35,14 @@ type match struct {
 }
 
 type clientCondition struct {
-	latestBoard       []int
-	isLosed           bool
-	latestMsgNum      int
-	latestAttackPoint int
-	conn              *websocket.Conn
-	isReady           bool
+	latestBoard               []int
+	isLosed                   bool
+	latestMsgNum              int
+	latestAttackPoint         int
+	conn                      *websocket.Conn
+	isReady                   bool
+	totalDamageInflictedToOpp int
+	totalNumOfOpenedCells     int
 }
 
 func initMatch(ip1 string, ip2 string) {
@@ -70,17 +72,25 @@ func Process(rawMsg string, conn *websocket.Conn) {
 		initMatch(myIpAddr, c.OpponentAddr)
 	}
 
+	joiningMatch := allMatches[getSortedAddrs(myIpAddr, c.OpponentAddr)]
+
+	myUindex := joiningMatch.uindex[myIpAddr]
+
+	// total damages user{myUindex} inflicted to the opponent before.
+	latestTotalDamageInflictedToOpp := joiningMatch.clients[myUindex].totalDamageInflictedToOpp + joiningMatch.clients[myUindex].latestAttackPoint
+
 	myCond := clientCondition{
-		latestBoard:       c.LatestBoard,
-		isLosed:           c.IsLosed,
-		latestMsgNum:      c.LatestMsgNum,
-		latestAttackPoint: c.LatestAttackPoint,
-		conn:              conn,
-		isReady:           true,
+		latestBoard:               c.LatestBoard,
+		isLosed:                   c.IsLosed,
+		latestMsgNum:              c.LatestMsgNum,
+		latestAttackPoint:         calculateDamegeToInflictToOpponent(latestTotalDamageInflictedToOpp, c.TotalNumberOfUsrDefusedCells),
+		conn:                      conn,
+		isReady:                   true,
+		totalDamageInflictedToOpp: latestTotalDamageInflictedToOpp,
+		totalNumOfOpenedCells:     c.TotalNumberOfUsrDefusedCells,
 	}
 
-	joiningMatch := allMatches[getSortedAddrs(myIpAddr, c.OpponentAddr)]
-	myUindex := joiningMatch.uindex[myIpAddr]
+	fmt.Println("latestTotalDamageInflictedToOpp: ", latestTotalDamageInflictedToOpp)
 
 	fmt.Println("addr: ", myIpAddr, " uindex: ", myUindex)
 
@@ -139,14 +149,28 @@ func sendOpponentCondition(opponentCond clientCondition, myConn *websocket.Conn)
 		OpponentAddr:      opponentCond.conn.RemoteAddr().String(),
 	}
 
+	// for debug ->
+	tmpMsgToClient := msgToClient
+	tmpMsgToClient.LatestBoard = []int{0}
+	tmpJson, err := json.Marshal(tmpMsgToClient)
+	if err != nil {
+		fmt.Println("json serialize error: ", err)
+		return
+	}
+	fmt.Println("msgToC: ", string(tmpJson))
+	// <- for debug
+
 	json, err := json.Marshal(msgToClient)
 	if err != nil {
 		fmt.Println("json serialize error: ", err)
 		return
 	}
 
-	fmt.Println("msgToC: ", string(json))
 	if err := myConn.WriteMessage(1, []byte("battling\n"+string(json))); err != nil {
 		fmt.Println("writeMessage err: ", err)
 	}
+}
+
+func calculateDamegeToInflictToOpponent(totalDamageInflictedToOpp int, totalNumOfOpenedCells int) int {
+	return ((totalNumOfOpenedCells - totalDamageInflictedToOpp) / 10) * 10
 }

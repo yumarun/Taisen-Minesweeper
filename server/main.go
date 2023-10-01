@@ -93,7 +93,7 @@ func echoAllMessage() {
 		client_str := <-clientMsgChan
 
 		arr := strings.Split(client_str.msg, "\n")
-		log.Println("arr0: ", arr[0], " arr1: ", arr[1], " from: ", client_str.conn.RemoteAddr().String())
+		// log.Println("arr0: ", arr[0], " arr1: ", arr[1], " from: ", client_str.conn.RemoteAddr().String())
 
 		// もし「マッチしたい」というメッセージなら
 		if arr[0] == "matching" {
