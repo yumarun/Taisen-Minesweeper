@@ -23,6 +23,9 @@ public class MinesweeperManager : MonoBehaviour
     public bool GoingInit = false;
     bool _initializeFinished = false;
 
+
+    bool _goAddLines = false;
+    int _addedLinesLength = 0; 
     
     public void Init()
     {
@@ -79,7 +82,14 @@ public class MinesweeperManager : MonoBehaviour
                 }
             }
         }
-        
+
+        if (_goAddLines)
+        {
+            _goAddLines = false;
+            _addLines.AddLines(ref _board, _addedLinesLength);
+
+        }
+
     }
 
     
@@ -147,8 +157,14 @@ public class MinesweeperManager : MonoBehaviour
 
     public void OnAddLines()
     {
-        _addLines.AddLines(ref _board);
+        _addLines.AddLines(ref _board, 3);
 
+    }
+
+    public void AddLines(int addedLinesLength)
+    {
+        _goAddLines = true;
+        _addedLinesLength = addedLinesLength;
     }
 
     public int[] GetBoardState()

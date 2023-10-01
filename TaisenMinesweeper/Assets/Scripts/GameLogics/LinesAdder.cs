@@ -7,7 +7,6 @@ public class LinesAdder
     readonly int _boardWidth;
     readonly int _boardHeight;
 
-    readonly int _addedLinesLength = 3;
 
     public LinesAdder(int boardWidth, int boardHeight)
     {
@@ -16,12 +15,18 @@ public class LinesAdder
     }
 
 
-    public void AddLines(ref Board board)
+    public void AddLines(ref Board board, int addedLinesLength)
     {
+        Debug.Log($"addedLinesLength: {addedLinesLength}");
 
+        if (addedLinesLength == 0)
+        {
+            
+            return;
+        }
 
         // ボードの上から3行に未開封のマスがあった場合，プレイヤーは負け
-        var (safeMinesNum, unsafeMinesNum) = board.GetExsitingMinesCountInSquare(0, Board.BoardHeight - 1, Board.BoardWidth - 1, Board.BoardHeight - _addedLinesLength);
+        var (safeMinesNum, unsafeMinesNum) = board.GetExsitingMinesCountInSquare(0, Board.BoardHeight - 1, Board.BoardWidth - 1, Board.BoardHeight - addedLinesLength);
         if (unsafeMinesNum != 0)
         {
             Debug.Log("未開封のマスがありプレイヤーのまけ");
@@ -34,14 +39,14 @@ public class LinesAdder
 
         var newBoardState = nowBoardState;
 
-        int minesNumInNewLines = _boardWidth * _addedLinesLength * Board.MineProportionDenominator / Board.MineProportionNumerator;
+        int minesNumInNewLines = Board.AmountOfMinesAtFirst * addedLinesLength / Board.BoardHeight;
         //Debug.Log($"minesNumInNewLines: {minesNumInNewLines}");
-        var newLines = MakeNewLines(_addedLinesLength, Board.BoardWidth, 6);
+        var newLines = MakeNewLines(addedLinesLength, Board.BoardWidth, minesNumInNewLines);
 
 
         UpdateBoardStateWithLines(ref newBoardState, newLines); 
         
-        board.UpdateWithBoardState(newBoardState, _addedLinesLength);
+        board.UpdateWithBoardState(newBoardState, addedLinesLength);
 
         // Board._amountOfMinesを更新
         var addedMinesNum = GetMinesNumInNewLines(board);

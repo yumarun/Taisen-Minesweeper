@@ -52,7 +52,8 @@ public class ClientNetworkManager: MonoBehaviour
             // æ‚Éjson‚ğ‰ğÍ
             var msg = JsonUtility.FromJson<BattlingPhaseMessageFromServer>(msgsp[1]);
 
-            _gameManager.OnOpponentBoardSent(msg.LatestBoard);
+            _gameManager.OnOpponentBoardSent(msg.LatestBoard, msg.LatestAttackPoint / 10);
+
 
         }
     }

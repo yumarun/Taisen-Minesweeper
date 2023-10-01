@@ -75,10 +75,13 @@ public class GameManager : MonoBehaviour
         _minimapManager.GoCreateMinimap = true;
     }
 
-    public void OnOpponentBoardSent(int[] board)
+    public void OnOpponentBoardSent(int[] board, int addedLinesLength)
     {
         _minimapManager.SetMinimapToBuffer(board);
+
         _minimapManager.GoUpdateMinimap = true;
+
+        _minesweeperManager.AddLines(addedLinesLength);
     }
 
     public int GetOpenedCellNum()
