@@ -93,6 +93,8 @@ func echoAllMessage() {
 		client_str := <-clientMsgChan
 
 		arr := strings.Split(client_str.msg, "\n")
+		ipAddr := client_str.conn.RemoteAddr().String()
+
 		// log.Println("arr0: ", arr[0], " arr1: ", arr[1], " from: ", client_str.conn.RemoteAddr().String())
 
 		// もし「マッチしたい」というメッセージなら
@@ -103,7 +105,6 @@ func echoAllMessage() {
 				return
 			}
 
-			ipAddr := client_str.conn.RemoteAddr().String()
 
 			// mapに登録されているか確認, なかったら登録
 			user, isExistingUser := users[ipAddr]
@@ -114,12 +115,14 @@ func echoAllMessage() {
 			}
 
 			// userのstateを更新
-			updateUserState(ipAddr, rawClientMsg.State)
+			updateUserState(ipAddr, "matching")
 			matching.Process(user.uid, ipAddr, user.conn)
 		} else if arr[0] == "battling" {
+			updateUserState(ipAddr, "battling")
 			battling.Process(arr[1], client_str.conn)
 		}
 
+		fmt.Println("user state: ", users[client_str.conn.RemoteAddr().String()].state)
 	}
 }
 
@@ -137,9 +140,13 @@ func onClientDisconnected(ipAddr string) {
 	if users[ipAddr].state == "matching" {
 		matching.CancelMatching(ipAddr)
 		delete(users, ipAddr)
+
+		log.Println(ipAddr, " disconnected during matching.")
+	} else if users[ipAddr].state == "battling" { // if 試合中
+		battling.OnClientDisconnected(ipAddr)
+		log.Println(ipAddr, " disconnected during battling.")
 	}
 
-	// if 試合中
 }
 
 func registeredInUsers(ipAddr string) bool {

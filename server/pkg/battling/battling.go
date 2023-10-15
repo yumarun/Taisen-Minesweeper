@@ -9,6 +9,7 @@ import (
 )
 
 var allMatches = make(map[string]*match)
+var ipAddr_oppIpAddr = make(map[string]string)
 var matchNumCount = 0
 
 var MAX_INFLICTED_DAMAGE = 50
@@ -47,6 +48,11 @@ type clientCondition struct {
 }
 
 func initMatch(ip1 string, ip2 string) {
+
+	// register map[ip1]ip2 and map[ip2]ip1
+	ipAddr_oppIpAddr[ip1] = ip2
+	ipAddr_oppIpAddr[ip2] = ip1
+
 	matchNumCount++
 	newMatchID := getNewMatchID()
 
@@ -76,8 +82,6 @@ func Process(rawMsg string, conn *websocket.Conn) {
 	joiningMatch := allMatches[getSortedAddrs(myIpAddr, c.OpponentAddr)]
 
 	myUindex := joiningMatch.uindex[myIpAddr]
-
-	// TODO: ダメージを一回のダメージ上限を作れるように。サーバー側をいじる.
 
 	// update client's total num of opened cells to the latest one.
 	joiningMatch.clients[myUindex].totalNumOfOpenedCells = c.TotalNumberOfUsrDefusedCells
@@ -190,4 +194,27 @@ func updateOppCondWithDmgHeInflicted(matchIdx string, opponentUindex int) {
 	opponentCondition := &allMatches[matchIdx].clients[opponentUindex]
 	opponentCondition.totalDamageInflictedToOpp += opponentCondition.attackPointToBeInflicted
 	opponentCondition.attackPointToBeInflicted = 0
+}
+
+func OnClientDisconnected(ipAddr string) {
+
+	opponentIpAddr := ipAddr_oppIpAddr[ipAddr]
+
+	// 切断されたplayerへmessageを送信
+	canceledMatch := allMatches[getSortedAddrs(ipAddr, opponentIpAddr)]
+	disconnectedUsrId := canceledMatch.uindex[ipAddr]
+	winnerId := 1 - disconnectedUsrId
+	if err := canceledMatch.clients[winnerId].conn.WriteMessage(1, []byte("opponent disconnected. you win.")); err != nil {
+		fmt.Println("send win message err: ", err)
+	}
+
+	// ipAddr_oppIpAddr, allmatchesから削除
+	delete(ipAddr_oppIpAddr, ipAddr)
+	delete(ipAddr_oppIpAddr, opponentIpAddr)
+	delete(allMatches, getSortedAddrs(ipAddr, opponentIpAddr))
+
+}
+
+func OnGameFin(matchId int, winner int) {
+
 }
