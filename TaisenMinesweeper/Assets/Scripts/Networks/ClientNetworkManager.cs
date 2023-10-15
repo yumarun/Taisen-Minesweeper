@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using UnityEngine;
 using UnityEngine.Events;
@@ -41,20 +42,37 @@ public class ClientNetworkManager: MonoBehaviour
     {
         Debug.Log("WebSocket message received: " + e.Data);
         string[] msgsp = e.Data.Split('\n');
-        if (msgsp.Length >= 2 && msgsp[0] == "match!op:")
+
+        if (msgsp.Length == 1)
         {
-            _opponentIpAddr = msgsp[1];
-            Debug.Log($"Matchi finished. OppenentAddr: {_opponentIpAddr}");
-            _onMatchingFinished.Invoke();
+            if (msgsp[0] == "opponent disconnected. you win.")
+            {
+                Debug.Log("opponent disconnected.you win.");
+            }
+            else
+            {
+                Debug.Log("unregistered message received 1...........");
+            }
         }
-        else if (msgsp[0] == "battling")
+        else if (msgsp.Length >= 2)
         {
-            // æ‚Éjson‚ğ‰ğÍ
-            var msg = JsonUtility.FromJson<BattlingPhaseMessageFromServer>(msgsp[1]);
+            if (msgsp[0] == "match!op:")
+            {
+                _opponentIpAddr = msgsp[1];
+                Debug.Log($"Matchi finished. OppenentAddr: {_opponentIpAddr}");
+                _onMatchingFinished.Invoke();
+            }
+            else if (msgsp[0] == "battling")
+            {
+                // æ‚Éjson‚ğ‰ğÍ
+                var msg = JsonUtility.FromJson<BattlingPhaseMessageFromServer>(msgsp[1]);
 
-            _gameManager.OnOpponentBoardSent(msg.LatestBoard, msg.LatestAttackPoint / 10);
-
-
+                _gameManager.OnOpponentBoardSent(msg.LatestBoard, msg.LatestAttackPoint / 10);
+            }
+            else
+            {
+                Debug.Log("unregistered message received 2...........");
+            }
         }
     }
 
