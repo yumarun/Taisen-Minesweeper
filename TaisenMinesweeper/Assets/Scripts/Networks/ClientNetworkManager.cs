@@ -45,13 +45,13 @@ public class ClientNetworkManager: MonoBehaviour
 
         if (msgsp.Length == 1)
         {
-            if (msgsp[0] == "opponent disconnected.you win.")
+            if (msgsp[0] == "opponent disconnected. you win.")
             {
                 Debug.Log("opponent disconnected.you win.");
             }
             else
             {
-                Debug.Log("unregistered message received...........");
+                Debug.Log("unregistered message received 1...........");
             }
         }
         else if (msgsp.Length >= 2)
@@ -71,7 +71,7 @@ public class ClientNetworkManager: MonoBehaviour
             }
             else
             {
-                Debug.Log("unregistered message received...........");
+                Debug.Log("unregistered message received 2...........");
             }
         }
     }
