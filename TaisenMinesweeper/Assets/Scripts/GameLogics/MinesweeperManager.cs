@@ -25,7 +25,9 @@ public class MinesweeperManager : MonoBehaviour
 
 
     bool _goAddLines = false;
-    int _addedLinesLength = 0; 
+    int _addedLinesLength = 0;
+
+    public int AmountOfInitOpeningLines = -1; // will be initialized when match start.
     
     public void Init()
     {
@@ -43,6 +45,14 @@ public class MinesweeperManager : MonoBehaviour
         _addLines = new LinesAdder(Board.BoardWidth, Board.BoardHeight);
 
 
+        // TODO: ã”s‚ÌƒZƒ‹‚ğ‹ó‚¯‚é
+        for (int i = 0; i < AmountOfInitOpeningLines; i++)
+        {
+            for (int j = 0; j < Board.BoardWidth; j++)
+            {
+                _board.TryOpenCell(Board.BoardHeight - i - 1, j, false);
+            }
+        }
     }
     
 

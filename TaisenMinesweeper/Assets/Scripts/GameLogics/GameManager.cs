@@ -24,6 +24,8 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     MinimapManager _minimapManager;
 
+    int _amountOfInitOpeningLines = 5;
+
     void Update()
     {
         if (_matching)
@@ -72,6 +74,7 @@ public class GameManager : MonoBehaviour
     void InitGame()
     {
         _minesweeperManager.GoingInit = true;
+        _minesweeperManager.AmountOfInitOpeningLines = _amountOfInitOpeningLines;
         _minimapManager.GoCreateMinimap = true;
     }
 
