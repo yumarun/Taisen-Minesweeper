@@ -100,6 +100,10 @@ public class MinesweeperManager : MonoBehaviour
 
         }
 
+        if (Input.GetKeyDown(KeyCode.A))
+        {
+            Debug.Log($"Amount of opened cells: {_board.GetAmountOfOpenedCells()}"); 
+        }
     }
 
     

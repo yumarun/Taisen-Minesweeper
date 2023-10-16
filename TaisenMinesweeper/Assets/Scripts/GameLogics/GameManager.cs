@@ -91,4 +91,9 @@ public class GameManager : MonoBehaviour
     {
         return _minesweeperManager.GetOpenedCellNum();
     }
+
+    public void OnGameFinished()
+    {
+        _battling = false;
+    }
 }

@@ -54,7 +54,7 @@ public class Cell : MonoBehaviour
         IsFlagged= false;
     }
 
-    public void Open(Sprite sprite, ref int amountOfOpendCells, bool fromClick)
+    public void Open(Sprite sprite, ref int amountOfOpendCellsFromClick, ref int amountOfAutomaticallyOpendCells, bool fromClick)
     {
         if (IsFlagged)
         {
@@ -66,10 +66,14 @@ public class Cell : MonoBehaviour
 
         if (fromClick)
         {
-            amountOfOpendCells++;
+            amountOfOpendCellsFromClick++;
+        }
+        else
+        {
+            amountOfAutomaticallyOpendCells++;
         }
 
-        UIManager.SetOpenedCountText(amountOfOpendCells);
+        UIManager.SetOpenedCountText(amountOfOpendCellsFromClick);
     }
 
     public void Flag(Sprite flagSprite)

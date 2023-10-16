@@ -37,6 +37,9 @@ public class LinesAdder
 
         var nowBoardState = board.GetState();
 
+        int amountOfOpenedCellsToBeErased = GetAmountOfOpenedCellsToBeErased(addedLinesLength, nowBoardState);
+        board.AddAmountOfErasedCells(amountOfOpenedCellsToBeErased);
+
         var newBoardState = nowBoardState;
 
         int minesNumInNewLines = Board.AmountOfMinesAtFirst * addedLinesLength / Board.BoardHeight;
@@ -56,7 +59,24 @@ public class LinesAdder
 
     }
 
+    int GetAmountOfOpenedCellsToBeErased(int addedLinesLength, CellInfo[,] oldBoardState)
+    {
+        int amountOfOpenedCellsToBeErased = 0;
+        for (int i = 0; i < addedLinesLength; i++)
+        {
+            for (int j = 0; j < _boardWidth; j++)
+            {
+                CellInfo cell = oldBoardState[_boardHeight - i - 1, j];
+                if (cell.IsOpend && !cell.IsSafeBomb)
+                {
+                    amountOfOpenedCellsToBeErased++;
+                }
+            }
+        }
 
+        Debug.Log($"amountOfOpenedCellsToBeErased: {amountOfOpenedCellsToBeErased}");
+        return amountOfOpenedCellsToBeErased;
+    }
 
     CellInfo[,] MakeNewLines(int height, int width, int mineNum)
     {
