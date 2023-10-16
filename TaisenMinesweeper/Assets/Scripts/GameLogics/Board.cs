@@ -18,8 +18,10 @@ public class Board
     Cell[,] _cells;
 
 
-    int _amountOfOpenedCells;
+    int _amountOfOpenedCellsFromClick;
+    int _amountOfAutomaticallyOpenedCells;
     int _amountOfMines;
+    int _amountOfErasedCells;
 
     UIManager _testUIManager;
 
@@ -32,7 +34,9 @@ public class Board
         _cellImageAsset = cellImages;
         _cellPrefab = cellPrefab;
         _cells = new Cell[BoardHeight, BoardWidth];
-        _amountOfOpenedCells = 0;
+        _amountOfOpenedCellsFromClick = 0;
+        _amountOfAutomaticallyOpenedCells = 0;
+        _amountOfErasedCells = 0;
         _amountOfMines = AmountOfMinesAtFirst;
         _testUIManager = testUIManager;
     }
@@ -57,6 +61,7 @@ public class Board
 
     public void TryOpenCell(int y, int x, bool fromClick)
     {
+
         if (_cells[y, x].IsOpend)
         {
             return;
@@ -82,7 +87,7 @@ public class Board
         // ”Žšƒ}ƒX‚ðˆø‚¢‚½‚Æ‚« // TODO: Žü‚è‚Ì”š’e‚ðŒ©‚Â‚¯‚Ä‚»‚Ì”š’e‚É‚Â‚¢‚ÄCcheck‚ð•t‚¯‚½‚è‚·‚é
         if (_cells[y, x].WrittenValue > 0)
         {
-            _cells[y, x].Open(_cellImageAsset._numberImages[_cells[y, x].WrittenValue], ref _amountOfOpenedCells, fromClick);
+            _cells[y, x].Open(_cellImageAsset._numberImages[_cells[y, x].WrittenValue], ref _amountOfOpenedCellsFromClick, ref _amountOfAutomaticallyOpenedCells, fromClick);
             SearchSafeMine(y, x);
             if (IsNowMeetingClearConditions())
             {
@@ -110,7 +115,7 @@ public class Board
                 continue;
             }
 
-            _cells[ny, nx].Open(_cellImageAsset._numberImages[0], ref _amountOfOpenedCells, fromClick);
+            _cells[ny, nx].Open(_cellImageAsset._numberImages[0], ref _amountOfOpenedCellsFromClick, ref _amountOfAutomaticallyOpenedCells, fromClick);
             SearchSafeMine(ny, nx);
 
 
@@ -136,7 +141,7 @@ public class Board
                 }
                 else
                 {
-                    _cells[nny, nnx].Open(_cellImageAsset._numberImages[_cells[nny, nnx].WrittenValue], ref _amountOfOpenedCells, fromClick);
+                    _cells[nny, nnx].Open(_cellImageAsset._numberImages[_cells[nny, nnx].WrittenValue], ref _amountOfOpenedCellsFromClick, ref _amountOfAutomaticallyOpenedCells, fromClick);
                     SearchSafeMine(nny, nnx);
 
                 }
@@ -149,6 +154,7 @@ public class Board
             OnClear();
             return;
         }
+
     }
 
     void OnExploded()
@@ -226,7 +232,7 @@ public class Board
 
     bool IsNowMeetingClearConditions()
     {
-        if (_amountOfOpenedCells == BoardHeight * BoardWidth - AmountOfMinesAtFirst)
+        if (_amountOfOpenedCellsFromClick == BoardHeight * BoardWidth - AmountOfMinesAtFirst)
         {
             return true;
         }
@@ -345,11 +351,16 @@ public class Board
 
     public void AddAmountOfOpenedCells(int amount)
     {
-        _amountOfOpenedCells += amount;
+        _amountOfOpenedCellsFromClick += amount;
     }
 
     public int GetAmountOfOpenedCells()
     {
-        return _amountOfOpenedCells;
+        return _amountOfOpenedCellsFromClick;
+    }
+
+    public void AddAmountOfErasedCells(int amount)
+    {
+        _amountOfErasedCells += amount;
     }
 }
