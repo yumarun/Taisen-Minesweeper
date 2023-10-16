@@ -143,6 +143,7 @@ func onClientDisconnected(ipAddr string) {
 
 		log.Println(ipAddr, " disconnected during matching.")
 	} else if users[ipAddr].state == "battling" { // if 試合中
+		delete(users, ipAddr)
 		battling.OnClientDisconnected(ipAddr)
 		log.Println(ipAddr, " disconnected during battling.")
 	}

@@ -48,6 +48,7 @@ type clientCondition struct {
 }
 
 func initMatch(ip1 string, ip2 string) {
+	fmt.Println("initMatch is called")
 
 	// register map[ip1]ip2 and map[ip2]ip1
 	ipAddr_oppIpAddr[ip1] = ip2
@@ -201,12 +202,22 @@ func OnClientDisconnected(ipAddr string) {
 	opponentIpAddr := ipAddr_oppIpAddr[ipAddr]
 
 	// 切断されたplayerへmessageを送信
+	fmt.Println(205)
 	canceledMatch := allMatches[getSortedAddrs(ipAddr, opponentIpAddr)]
+	fmt.Println(207)
+
 	disconnectedUsrId := canceledMatch.uindex[ipAddr]
+	fmt.Println(210)
+
 	winnerId := 1 - disconnectedUsrId
+	fmt.Println(213)
+
 	if err := canceledMatch.clients[winnerId].conn.WriteMessage(1, []byte("opponent disconnected. you win.")); err != nil {
 		fmt.Println("send win message err: ", err)
 	}
+	fmt.Println(218)
+
+	canceledMatch.clients[winnerId].conn.Close()
 
 	// ipAddr_oppIpAddr, allmatchesから削除
 	delete(ipAddr_oppIpAddr, ipAddr)
