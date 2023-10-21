@@ -96,4 +96,6 @@ public class GameManager : MonoBehaviour
     {
         _battling = false;
     }
+
+    
 }

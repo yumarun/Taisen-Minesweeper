@@ -89,7 +89,7 @@ public class ClientNetworkManager: MonoBehaviour
     public void SendBoardInfo(int[] board)
     {
         var amountOfOpenedCells = _gameManager.GetOpenedCellNum();
-        var msg = new BattlingPhaseMessageToServer(board, false, _nowBattlingMsgNum++, amountOfOpenedCells, _opponentIpAddr);
+        var msg = new BattlingPhaseMessageToServer(board, false, false, _nowBattlingMsgNum++, amountOfOpenedCells, _opponentIpAddr);
         string json = JsonUtility.ToJson(msg);
 
         _webSocket.Send("battling\n" + json);
@@ -112,15 +112,17 @@ public class ClientNetworkManager: MonoBehaviour
     public class BattlingPhaseMessageToServer
     {
         public int[] LatestBoard;
-        public bool IsLosed;
+        public bool Lost;
+        public bool Won;
         public int LatestMsgNum;
         public int TotalNumberOfUsrDefusedCells;
         public string OpponentAddr;
 
-        public BattlingPhaseMessageToServer(int[] boardState, bool isLosed, int msgNum, int ap, string opponentIp)
+        public BattlingPhaseMessageToServer(int[] boardState, bool lost, bool won, int msgNum, int ap, string opponentIp)
         {
             LatestBoard = boardState;
-            IsLosed = isLosed;
+            Lost = lost;
+            Won = won;
             LatestMsgNum = msgNum;
             TotalNumberOfUsrDefusedCells = ap;
             OpponentAddr = opponentIp;
@@ -152,6 +154,18 @@ public class ClientNetworkManager: MonoBehaviour
         {
             _webSocket.Close();
             _webSocket = null;
+        }
+    }
+
+    public static void SendWinOrLoseResult(bool win)
+    {
+        if (win)
+        {
+
+        }
+        else
+        {
+
         }
     }
 }

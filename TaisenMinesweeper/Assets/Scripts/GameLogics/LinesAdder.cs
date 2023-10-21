@@ -32,14 +32,7 @@ public class LinesAdder
             Debug.Log("未開封のマスがありプレイヤーのまけ");
         }
 
-        
-
-
         var nowBoardState = board.GetState();
-
-        
-
-
 
         var newBoardState = nowBoardState;
 
@@ -53,32 +46,10 @@ public class LinesAdder
         
         board.UpdateWithBoardState(newBoardState, addedLinesLength);
 
-        // Board._amountOfMinesを更新
-        var addedMinesNum = GetMinesNumInNewLines(board);
-
-
-        //board.AddAmountOfMines(addedMinesNum - (safeMinesNum + unsafeMinesNum));
         board.CountAndSetAmountOfAlreadyOpenedCellsAndMines();
     }
 
-    int GetAmountOfOpenedCellsToBeErased(int addedLinesLength, CellInfo[,] oldBoardState)
-    {
-        int amountOfOpenedCellsToBeErased = 0;
-        for (int i = 0; i < addedLinesLength; i++)
-        {
-            for (int j = 0; j < _boardWidth; j++)
-            {
-                CellInfo cell = oldBoardState[_boardHeight - i - 1, j];
-                if (0 <= cell.WrittenValue && cell.WrittenValue <= 9)
-                {
-                    amountOfOpenedCellsToBeErased++;
-                }
-            }
-        }
-
-        Debug.Log($"amountOfOpenedCellsToBeErased: {amountOfOpenedCellsToBeErased}");
-        return amountOfOpenedCellsToBeErased;
-    }
+    
 
     CellInfo[,] MakeNewLines(int height, int width, int mineNum)
     {
@@ -118,7 +89,6 @@ public class LinesAdder
 
 
         var nLinesHeight = newLines.GetLength(0);
-        //Debug.Log($"nLinesHeight: {nLinesHeight}");
 
 
         // ボードを上に3行ずらす & 新しい3行追加
@@ -182,27 +152,5 @@ public class LinesAdder
         
     }
 
-    int GetMinesNumInNewLines(Board board)
-    {
-        var (newSafeMinesNum, newUnsafeMinesNum) = board.GetExsitingMinesCountInSquare(0, 2, _boardWidth-1, 0);
-        return newSafeMinesNum + newUnsafeMinesNum;
-    }
 
-    int GetAmountOfNumCellsToBeAdded(int addedLinesLength, CellInfo[,] newLines)
-    {
-        int count = 0;
-
-        for (int i = 0; i < addedLinesLength; i++)
-        {
-            for (int j = 0; j < _boardWidth; j++)
-            {
-                if (0 <= newLines[i, j].WrittenValue && newLines[i, j].WrittenValue <= 9)
-                {
-                    count++;
-                }
-            }
-        }
-
-        return count;
-    }
 }
