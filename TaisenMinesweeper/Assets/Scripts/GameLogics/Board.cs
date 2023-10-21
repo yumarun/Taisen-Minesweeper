@@ -17,11 +17,14 @@ public class Board
 
     Cell[,] _cells;
 
+    int _amountOfMines;
+
+
 
     int _amountOfOpenedCellsFromClick;
     int _amountOfAutomaticallyOpenedCells;
-    int _amountOfMines;
-    int _amountOfErasedCells;
+    int _amountOfAlreadyOpenedCells;
+
 
     UIManager _testUIManager;
 
@@ -36,7 +39,7 @@ public class Board
         _cells = new Cell[BoardHeight, BoardWidth];
         _amountOfOpenedCellsFromClick = 0;
         _amountOfAutomaticallyOpenedCells = 0;
-        _amountOfErasedCells = 0;
+        _amountOfAlreadyOpenedCells = 0;
         _amountOfMines = AmountOfMinesAtFirst;
         _testUIManager = testUIManager;
     }
@@ -232,7 +235,10 @@ public class Board
 
     bool IsNowMeetingClearConditions()
     {
-        if (_amountOfOpenedCellsFromClick == BoardHeight * BoardWidth - AmountOfMinesAtFirst)
+        Debug.Log($"from c: {_amountOfOpenedCellsFromClick}, not from c: {_amountOfAutomaticallyOpenedCells}, already: {_amountOfAlreadyOpenedCells}");
+
+        if (_amountOfOpenedCellsFromClick + _amountOfAutomaticallyOpenedCells + _amountOfAlreadyOpenedCells 
+            == BoardHeight * BoardWidth - _amountOfMines) 
         {
             return true;
         }
@@ -286,8 +292,6 @@ public class Board
             }
         }
 
-        // TODO
-        // _amountOfOpendCellsÇæÇØçXêV
     }
 
     void SearchSafeMine(int y, int x)
@@ -349,18 +353,37 @@ public class Board
         Debug.Log(_amountOfMines);
     }
 
-    public void AddAmountOfOpenedCells(int amount)
-    {
-        _amountOfOpenedCellsFromClick += amount;
-    }
 
     public int GetAmountOfOpenedCells()
     {
         return _amountOfOpenedCellsFromClick;
     }
 
-    public void AddAmountOfErasedCells(int amount)
+    public void CountAndSetAmountOfAlreadyOpenedCellsAndMines()
     {
-        _amountOfErasedCells += amount;
+        int count = 0;
+        int minesCount = 0;
+        for (int i = 0; i < Board.BoardHeight; i++)
+        {
+            for (int j = 0; j <  Board.BoardWidth; j++)
+            {
+                if (_cells[i, j].IsOpend && 0 <= _cells[i, j].WrittenValue && _cells[i, j].WrittenValue <= 9)
+                {
+                    count++;
+                }
+
+                if (_cells[i, j].WrittenValue == -1)
+                {
+                    minesCount++;
+                }
+            }
+        }
+
+        _amountOfAlreadyOpenedCells = count;
+        _amountOfOpenedCellsFromClick = 0;
+        _amountOfAutomaticallyOpenedCells = 0;
+        _amountOfMines = minesCount;
     }
+
+    
 }

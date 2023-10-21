@@ -53,6 +53,8 @@ public class MinesweeperManager : MonoBehaviour
                 _board.TryOpenCell(Board.BoardHeight - i - 1, j, false);
             }
         }
+
+        _board.CountAndSetAmountOfAlreadyOpenedCellsAndMines();
     }
     
 

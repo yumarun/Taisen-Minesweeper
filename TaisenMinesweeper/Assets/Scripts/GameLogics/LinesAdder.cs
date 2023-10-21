@@ -37,14 +37,16 @@ public class LinesAdder
 
         var nowBoardState = board.GetState();
 
-        int amountOfOpenedCellsToBeErased = GetAmountOfOpenedCellsToBeErased(addedLinesLength, nowBoardState);
-        board.AddAmountOfErasedCells(amountOfOpenedCellsToBeErased);
+        
+
+
 
         var newBoardState = nowBoardState;
 
         int minesNumInNewLines = Board.AmountOfMinesAtFirst * addedLinesLength / Board.BoardHeight;
-        //Debug.Log($"minesNumInNewLines: {minesNumInNewLines}");
         var newLines = MakeNewLines(addedLinesLength, Board.BoardWidth, minesNumInNewLines);
+
+        
 
 
         UpdateBoardStateWithLines(ref newBoardState, newLines); 
@@ -55,8 +57,8 @@ public class LinesAdder
         var addedMinesNum = GetMinesNumInNewLines(board);
 
 
-        board.AddAmountOfMines(addedMinesNum - (safeMinesNum + unsafeMinesNum));
-
+        //board.AddAmountOfMines(addedMinesNum - (safeMinesNum + unsafeMinesNum));
+        board.CountAndSetAmountOfAlreadyOpenedCellsAndMines();
     }
 
     int GetAmountOfOpenedCellsToBeErased(int addedLinesLength, CellInfo[,] oldBoardState)
@@ -67,7 +69,7 @@ public class LinesAdder
             for (int j = 0; j < _boardWidth; j++)
             {
                 CellInfo cell = oldBoardState[_boardHeight - i - 1, j];
-                if (cell.IsOpend && !cell.IsSafeBomb)
+                if (0 <= cell.WrittenValue && cell.WrittenValue <= 9)
                 {
                     amountOfOpenedCellsToBeErased++;
                 }
@@ -137,8 +139,8 @@ public class LinesAdder
             }
         }
 
-        // 0~4行までのWritternValueを更新
-        for (int y = 0; y < nLinesHeight + 1; y++)
+        // 全行のWritternValueを更新
+        for (int y = 0; y < _boardHeight; y++)
         {
             for (int x = 0; x < _boardWidth; x++)
             {
@@ -184,5 +186,23 @@ public class LinesAdder
     {
         var (newSafeMinesNum, newUnsafeMinesNum) = board.GetExsitingMinesCountInSquare(0, 2, _boardWidth-1, 0);
         return newSafeMinesNum + newUnsafeMinesNum;
+    }
+
+    int GetAmountOfNumCellsToBeAdded(int addedLinesLength, CellInfo[,] newLines)
+    {
+        int count = 0;
+
+        for (int i = 0; i < addedLinesLength; i++)
+        {
+            for (int j = 0; j < _boardWidth; j++)
+            {
+                if (0 <= newLines[i, j].WrittenValue && newLines[i, j].WrittenValue <= 9)
+                {
+                    count++;
+                }
+            }
+        }
+
+        return count;
     }
 }
