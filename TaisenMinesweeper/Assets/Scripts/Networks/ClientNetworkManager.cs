@@ -12,7 +12,7 @@ public class ClientNetworkManager: MonoBehaviour
     UnityEvent _onMatchingFinished;
     [SerializeField] GameManager _gameManager;
 
-    WebSocket _webSocket;
+    static WebSocket _webSocket;
     string _opponentIpAddr = "";
     int _nowBattlingMsgNum = 0;
 
@@ -50,6 +50,15 @@ public class ClientNetworkManager: MonoBehaviour
                 Debug.Log("opponent disconnected.you win.");
                 _gameManager.OnGameFinished();
             }
+            else if (msgsp[0] == "YouWon")
+            {
+                Debug.Log("You won!!!!!!!");
+            }
+            else if (msgsp[0] == "YouLost")
+            {
+                Debug.Log("You lost...........");
+
+            }
             else
             {
                 Debug.Log("unregistered message received 1...........");
@@ -70,7 +79,7 @@ public class ClientNetworkManager: MonoBehaviour
 
                 _gameManager.OnOpponentBoardSent(msg.LatestBoard, msg.LatestAttackPoint / 10);
             }
-            else
+            else 
             {
                 Debug.Log("unregistered message received 2...........");
             }
@@ -161,11 +170,17 @@ public class ClientNetworkManager: MonoBehaviour
     {
         if (win)
         {
+            var msg = new BattlingPhaseMessageToServer(new int[0], false, true, -1, -1, "-1");
+            string json = JsonUtility.ToJson(msg);
 
+            _webSocket.Send("battling\n" + json);
         }
         else
         {
+            var msg = new BattlingPhaseMessageToServer(new int[0], true, false, -1, -1, "-1");
+            string json = JsonUtility.ToJson(msg);
 
+            _webSocket.Send("battling\n" + json);
         }
     }
 }

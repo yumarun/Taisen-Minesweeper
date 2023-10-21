@@ -30,6 +30,7 @@ public class LinesAdder
         if (unsafeMinesNum != 0)
         {
             Debug.Log("未開封のマスがありプレイヤーのまけ");
+            ClientNetworkManager.SendWinOrLoseResult(false);
         }
 
         var nowBoardState = board.GetState();

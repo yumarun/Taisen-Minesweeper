@@ -247,6 +247,7 @@ public class Board
     void OnClear()
     {
         Debug.Log("<color=yellow>Clear!!!</color>");
+        ClientNetworkManager.SendWinOrLoseResult(true);
     }
 
     public CellInfo[,] GetState()
