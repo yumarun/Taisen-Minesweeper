@@ -206,7 +206,7 @@ func OnClientDisconnected(ipAddr string) {
 	canceledMatch := allMatches[getSortedAddrs(ipAddr, opponentIpAddr)]
 	fmt.Println(207)
 
-	disconnectedUsrId := canceledMatch.uindex[ipAddr]
+	disconnectedUsrId := canceledMatch.uindex[ipAddr] // canceledMatchがnil??
 	fmt.Println(210)
 
 	winnerId := 1 - disconnectedUsrId
