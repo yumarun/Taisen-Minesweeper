@@ -53,11 +53,12 @@ public class ClientNetworkManager: MonoBehaviour
             else if (msgsp[0] == "YouWon")
             {
                 Debug.Log("You won!!!!!!!");
+                _gameManager.OnGameFinished();
             }
             else if (msgsp[0] == "YouLost")
             {
                 Debug.Log("You lost...........");
-
+                _gameManager.OnGameFinished();
             }
             else
             {

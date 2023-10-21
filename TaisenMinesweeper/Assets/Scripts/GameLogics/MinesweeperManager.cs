@@ -28,6 +28,11 @@ public class MinesweeperManager : MonoBehaviour
     int _addedLinesLength = 0;
 
     public int AmountOfInitOpeningLines = -1; // will be initialized when match start.
+
+    bool _canClick = true;
+    public static bool GoMakeBoardUnClickable = false;
+    float _elapsedTimeSinceBoardBecameUnclickable = 0;
+    [SerializeField] GameObject _mineClickedNotificationPanel;
     
     public void Init()
     {
@@ -70,29 +75,33 @@ public class MinesweeperManager : MonoBehaviour
 
         if (_initializeFinished)
         {
-            if (Input.GetMouseButtonDown(0))
+            if (_canClick)
             {
-                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                RaycastHit hit;
-
-                if (Physics.Raycast(ray, out hit))
+                if (Input.GetMouseButtonDown(0))
                 {
-                    var clickedCell = hit.collider.gameObject.GetComponent<Cell>();
-                    _board.TryOpenCell(clickedCell.Y, clickedCell.X, true);
+                    Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                    RaycastHit hit;
+
+                    if (Physics.Raycast(ray, out hit))
+                    {
+                        var clickedCell = hit.collider.gameObject.GetComponent<Cell>();
+                        _board.TryOpenCell(clickedCell.Y, clickedCell.X, true);
+                    }
+                }
+
+                if (Input.GetMouseButtonDown(1))
+                {
+                    Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                    RaycastHit hit;
+
+                    if (Physics.Raycast(ray, out hit))
+                    {
+                        var clickedCell = hit.collider.gameObject.GetComponent<Cell>();
+                        _board.TryFlagCell(clickedCell.Y, clickedCell.X);
+                    }
                 }
             }
-
-            if (Input.GetMouseButtonDown(1))
-            {
-                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                RaycastHit hit;
-
-                if (Physics.Raycast(ray, out hit))
-                {
-                    var clickedCell = hit.collider.gameObject.GetComponent<Cell>();
-                    _board.TryFlagCell(clickedCell.Y, clickedCell.X);
-                }
-            }
+            
         }
 
         if (_goAddLines)
@@ -102,9 +111,17 @@ public class MinesweeperManager : MonoBehaviour
 
         }
 
-        if (Input.GetKeyDown(KeyCode.A))
+        if (GoMakeBoardUnClickable)
         {
-            Debug.Log($"Amount of opened cells: {_board.GetAmountOfOpenedCells()}"); 
+            GoMakeBoardUnClickable = false;
+            MakeBoardUnClickable();
+
+            _elapsedTimeSinceBoardBecameUnclickable += Time.deltaTime;
+            if (_elapsedTimeSinceBoardBecameUnclickable > GameManager.BOARD_UNCLICKABLE_DURATION)
+            {
+                _elapsedTimeSinceBoardBecameUnclickable = 0;
+                MakeBoardClickable();
+            }
         }
     }
 
@@ -218,5 +235,17 @@ public class MinesweeperManager : MonoBehaviour
     public int GetOpenedCellNum()
     {
         return _board.GetAmountOfOpenedCells();
+    }
+
+    void MakeBoardUnClickable()
+    {
+        _canClick = false;
+        _mineClickedNotificationPanel.SetActive(true);
+    }
+
+    void MakeBoardClickable()
+    {
+        _canClick = true;
+        _mineClickedNotificationPanel.SetActive(false);
     }
 }

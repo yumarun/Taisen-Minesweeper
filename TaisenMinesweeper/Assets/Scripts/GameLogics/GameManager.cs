@@ -25,6 +25,7 @@ public class GameManager : MonoBehaviour
     MinimapManager _minimapManager;
 
     int _amountOfInitOpeningLines = 5;
+    public static readonly float BOARD_UNCLICKABLE_DURATION = 3f;
 
     void Update()
     {
