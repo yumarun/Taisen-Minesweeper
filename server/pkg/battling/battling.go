@@ -16,7 +16,8 @@ var MAX_INFLICTED_DAMAGE = 50
 
 type msgFromClientJsonFormat struct {
 	LatestBoard                  []int
-	IsLosed                      bool
+	Lost                         bool
+	Won                          bool
 	LatestMsgNum                 int
 	TotalNumberOfUsrDefusedCells int
 	OpponentAddr                 string
@@ -76,6 +77,18 @@ func Process(rawMsg string, conn *websocket.Conn) {
 
 	myIpAddr := conn.RemoteAddr().String()
 
+	if c.Lost {
+		sendButtleOutcomeToClients(ipAddr_oppIpAddr[myIpAddr], false)
+		OnGameFin(ipAddr_oppIpAddr[myIpAddr], myIpAddr)
+		return
+	}
+
+	if c.Won {
+		sendButtleOutcomeToClients(myIpAddr, false)
+		OnGameFin(myIpAddr, ipAddr_oppIpAddr[myIpAddr])
+		return
+	}
+
 	if !isMatchRegistered(myIpAddr, c.OpponentAddr) {
 		initMatch(myIpAddr, c.OpponentAddr)
 	}
@@ -89,7 +102,7 @@ func Process(rawMsg string, conn *websocket.Conn) {
 
 	myCond := clientCondition{
 		latestBoard:               c.LatestBoard,
-		isLosed:                   c.IsLosed,
+		isLosed:                   c.Lost,
 		latestMsgNum:              c.LatestMsgNum,
 		attackPointToBeInflicted:  calculateDamegeToInflictToOpponent(joiningMatch.clients[myUindex].totalDamageInflictedToOpp, joiningMatch.clients[myUindex].totalNumOfOpenedCells),
 		conn:                      conn,
@@ -199,33 +212,60 @@ func updateOppCondWithDmgHeInflicted(matchIdx string, opponentUindex int) {
 
 func OnClientDisconnected(ipAddr string) {
 
-	opponentIpAddr := ipAddr_oppIpAddr[ipAddr]
+	// opponentIpAddr := ipAddr_oppIpAddr[ipAddr]
 
-	// 切断されたplayerへmessageを送信
-	fmt.Println(205)
-	canceledMatch := allMatches[getSortedAddrs(ipAddr, opponentIpAddr)]
-	fmt.Println(207)
+	// // 切断されたplayerへmessageを送信
+	// fmt.Println(205)
+	// canceledMatch := allMatches[getSortedAddrs(ipAddr, opponentIpAddr)]
+	// fmt.Println(207)
 
-	disconnectedUsrId := canceledMatch.uindex[ipAddr] // canceledMatchがnil??
-	fmt.Println(210)
+	// disconnectedUsrId := canceledMatch.uindex[ipAddr] // canceledMatchがnil??
+	// fmt.Println(210)
 
-	winnerId := 1 - disconnectedUsrId
-	fmt.Println(213)
+	// winnerId := 1 - disconnectedUsrId
 
-	if err := canceledMatch.clients[winnerId].conn.WriteMessage(1, []byte("opponent disconnected. you win.")); err != nil {
-		fmt.Println("send win message err: ", err)
-	}
-	fmt.Println(218)
+	// if err := canceledMatch.clients[winnerId].conn.WriteMessage(1, []byte("opponent disconnected. you win.")); err != nil {
+	// 	fmt.Println("send win message err: ", err)
+	// }
 
-	canceledMatch.clients[winnerId].conn.Close()
+	// canceledMatch.clients[winnerId].conn.Close()
 
-	// ipAddr_oppIpAddr, allmatchesから削除
-	delete(ipAddr_oppIpAddr, ipAddr)
-	delete(ipAddr_oppIpAddr, opponentIpAddr)
-	delete(allMatches, getSortedAddrs(ipAddr, opponentIpAddr))
-
+	sendButtleOutcomeToClients(ipAddr_oppIpAddr[ipAddr], true)
+	OnGameFin(ipAddr_oppIpAddr[ipAddr], ipAddr)
 }
 
-func OnGameFin(matchId int, winner int) {
+// ipAddr_oppIpAddr, allmatchesから削除
+func OnGameFin(winnerIpAddr string, loserIpAddr string) {
+	delete(ipAddr_oppIpAddr, winnerIpAddr)
+	delete(ipAddr_oppIpAddr, loserIpAddr)
+	delete(allMatches, getSortedAddrs(winnerIpAddr, loserIpAddr))
+}
+
+func sendButtleOutcomeToClients(winnerIpAddr string, OnDisconnected bool) {
+	nowMatch := allMatches[getSortedAddrs(winnerIpAddr, ipAddr_oppIpAddr[winnerIpAddr])]
+	winnerId := nowMatch.uindex[winnerIpAddr]
+	loserId := 1 - winnerId
+
+	if OnDisconnected {
+
+		fmt.Println(207)
+
+		if err := nowMatch.clients[winnerId].conn.WriteMessage(1, []byte("opponent disconnected. you win.")); err != nil {
+			fmt.Println("send win message err: ", err)
+		}
+
+		nowMatch.clients[winnerId].conn.Close()
+	} else {
+		if err := nowMatch.clients[winnerId].conn.WriteMessage(1, []byte("YouWon")); err != nil {
+			fmt.Println("send message err: ", err)
+		}
+		if err := nowMatch.clients[loserId].conn.WriteMessage(1, []byte("YouLost")); err != nil {
+			fmt.Println("send message err: ", err)
+		}
+
+		nowMatch.clients[winnerId].conn.Close()
+		nowMatch.clients[loserId].conn.Close()
+
+	}
 
 }

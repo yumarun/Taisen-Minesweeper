@@ -39,30 +39,6 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-func echo(w http.ResponseWriter, r *http.Request) {
-	conn, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		log.Println("upgrade error:", err)
-		return
-	}
-
-	defer conn.Close()
-
-	for {
-		messageType, message, err := conn.ReadMessage()
-		if err != nil {
-			log.Println("read error:", err)
-			break
-		}
-
-		log.Printf("recv: %s from %s, ", message, r.RemoteAddr)
-		if err = conn.WriteMessage(messageType, message); err != nil {
-			log.Println("write error: ", err)
-			break
-		}
-	}
-}
-
 func clientMessageHandler(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -80,7 +56,6 @@ func clientMessageHandler(w http.ResponseWriter, r *http.Request) {
 
 			break
 		}
-		// log.Printf("received %s, type: %s from %s", message, strconv.Itoa(messageType), r.RemoteAddr)
 
 		clientMsgChan <- ClientMessage{msg: string(message), conn: conn}
 
@@ -104,7 +79,6 @@ func echoAllMessage() {
 				fmt.Println("json deserialize err: ", err)
 				return
 			}
-
 
 			// mapに登録されているか確認, なかったら登録
 			user, isExistingUser := users[ipAddr]
@@ -163,12 +137,12 @@ func updateUserState(ipAddr string, state string) {
 
 func main() {
 	fmt.Println("server start...")
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "welcome to my website!")
-	})
+	// http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	// 	fmt.Fprintf(w, "welcome to my website!")
+	// })
 
 	http.HandleFunc("/ws", clientMessageHandler)
-	http.HandleFunc("/ws2", echo)
+	// http.HandleFunc("/ws2", echo)
 
 	go echoAllMessage()
 
