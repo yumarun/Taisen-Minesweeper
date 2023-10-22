@@ -29,14 +29,15 @@ public class MinesweeperManager : MonoBehaviour
 
     public int AmountOfInitOpeningLines = -1; // will be initialized when match start.
 
-    bool _canClick = true;
+    bool _unclickableFromMissClick = false;
     public static bool GoMakeBoardUnClickable = false;
     float _elapsedTimeSinceBoardBecameUnclickable = 0;
     [SerializeField] GameObject _mineClickedNotificationPanel;
+
+
     
     public void Init()
     {
-
         _board = new Board(_cellImageAsset, _cellPrefab, _uiManager);
 
         var tmpCellsinfo = MakeCellsInfo(Board.BoardHeight, Board.BoardWidth, Board.AmountOfMinesAtFirst);
@@ -55,6 +56,7 @@ public class MinesweeperManager : MonoBehaviour
         {
             for (int j = 0; j < Board.BoardWidth; j++)
             {
+                
                 _board.TryOpenCell(Board.BoardHeight - i - 1, j, false);
             }
         }
@@ -71,11 +73,12 @@ public class MinesweeperManager : MonoBehaviour
             Init();
             GoingInit = false;
             _initializeFinished = true;
+            Debug.Log("Initizalize finished.");
         }
 
         if (_initializeFinished)
         {
-            if (_canClick)
+            if (!_unclickableFromMissClick)
             {
                 if (Input.GetMouseButtonDown(0))
                 {
@@ -111,22 +114,34 @@ public class MinesweeperManager : MonoBehaviour
 
         }
 
+        
+
         if (GoMakeBoardUnClickable)
         {
             GoMakeBoardUnClickable = false;
-            MakeBoardUnClickable();
 
+            if (_initializeFinished)
+            {
+                _unclickableFromMissClick = true;
+                _mineClickedNotificationPanel.SetActive(true);
+            }
+            
+        }
+
+        if (_unclickableFromMissClick)
+        {
             _elapsedTimeSinceBoardBecameUnclickable += Time.deltaTime;
             if (_elapsedTimeSinceBoardBecameUnclickable > GameManager.BOARD_UNCLICKABLE_DURATION)
             {
                 _elapsedTimeSinceBoardBecameUnclickable = 0;
-                MakeBoardClickable();
+                _unclickableFromMissClick = false;
+                _mineClickedNotificationPanel.SetActive(false);
             }
         }
     }
 
     
-    public static CellInfo[,] MakeCellsInfo(int boardHeight, int boardWidth, int AmountOfMines)
+    CellInfo[,] MakeCellsInfo(int boardHeight, int boardWidth, int AmountOfMines)
     {
         var dst = new CellInfo[boardHeight, boardWidth];
         for (int i = 0; i < boardHeight; i++)
@@ -237,15 +252,7 @@ public class MinesweeperManager : MonoBehaviour
         return _board.GetAmountOfOpenedCells();
     }
 
-    void MakeBoardUnClickable()
-    {
-        _canClick = false;
-        _mineClickedNotificationPanel.SetActive(true);
-    }
+    
 
-    void MakeBoardClickable()
-    {
-        _canClick = true;
-        _mineClickedNotificationPanel.SetActive(false);
-    }
+    
 }

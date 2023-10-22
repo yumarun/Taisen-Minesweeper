@@ -64,7 +64,6 @@ public class Board
 
     public void TryOpenCell(int y, int x, bool fromClick)
     {
-
         if (_cells[y, x].IsOpend)
         {
             return;
@@ -83,8 +82,10 @@ public class Board
         // ”š’e‚ğˆø‚¢‚½‚Æ‚«
         if (_cells[y, x].WrittenValue == -1)
         {
-
-            OnExploded();
+            if (fromClick)
+            {
+                OnExploded();
+            }
             return;
         }
         // ”šƒ}ƒX‚ğˆø‚¢‚½‚Æ‚« // TODO: ü‚è‚Ì”š’e‚ğŒ©‚Â‚¯‚Ä‚»‚Ì”š’e‚É‚Â‚¢‚ÄCcheck‚ğ•t‚¯‚½‚è‚·‚é
@@ -160,9 +161,11 @@ public class Board
 
     }
 
+
     void OnExploded()
     {
-        Debug.Log("¸”s‚Å‚·");
+        MinesweeperManager.GoMakeBoardUnClickable = true;
+
     }
 
     public void TryFlagCell(int y, int x)

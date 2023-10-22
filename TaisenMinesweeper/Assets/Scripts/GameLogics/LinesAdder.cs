@@ -17,7 +17,6 @@ public class LinesAdder
 
     public void AddLines(ref Board board, int addedLinesLength)
     {
-        Debug.Log($"addedLinesLength: {addedLinesLength}");
 
         if (addedLinesLength == 0)
         {
