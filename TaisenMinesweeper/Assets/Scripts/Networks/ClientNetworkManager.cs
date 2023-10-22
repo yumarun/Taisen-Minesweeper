@@ -48,17 +48,17 @@ public class ClientNetworkManager: MonoBehaviour
             if (msgsp[0] == "opponent disconnected. you win.")
             {
                 Debug.Log("opponent disconnected.you win.");
-                _gameManager.OnGameFinished();
+                _gameManager.OnGameFinished(true);
             }
             else if (msgsp[0] == "YouWon")
             {
                 Debug.Log("You won!!!!!!!");
-                _gameManager.OnGameFinished();
+                _gameManager.OnGameFinished(true);
             }
             else if (msgsp[0] == "YouLost")
             {
                 Debug.Log("You lost...........");
-                _gameManager.OnGameFinished();
+                _gameManager.OnGameFinished(false);
             }
             else
             {

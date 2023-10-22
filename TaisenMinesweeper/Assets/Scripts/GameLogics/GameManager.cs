@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -27,6 +27,14 @@ public class GameManager : MonoBehaviour
     int _amountOfInitOpeningLines = 5;
     public static readonly float BOARD_UNCLICKABLE_DURATION = 3f;
 
+    [SerializeField] GameObject _panelOnGameFinished;
+    [SerializeField] GameObject _textWon;
+    [SerializeField] GameObject _textLost;
+
+    // ’Êí: 0, 
+    // I—¹ & won: 1,
+    // I—¹ & los: 2t
+    int _onGameFinished = 0; 
     void Update()
     {
         if (_matching)
@@ -48,6 +56,31 @@ public class GameManager : MonoBehaviour
 
                 _client.SendBoardInfo(_minesweeperManager.GetBoardState());
             }
+        }
+
+        if (_onGameFinished >= 1)
+        {
+            bool win;
+            if (_onGameFinished == 1)
+            {
+                win = true;
+            }
+            else
+            {
+                win = false;    
+            }
+            _onGameFinished = 0;
+
+            if (win)
+            {
+                _textWon.SetActive(true);
+            }
+            else
+            {
+                _textLost.SetActive(true);
+            }
+            _panelOnGameFinished.SetActive(true);
+
         }
     }
 
@@ -93,10 +126,21 @@ public class GameManager : MonoBehaviour
         return _minesweeperManager.GetOpenedCellNum();
     }
 
-    public void OnGameFinished()
+    public void OnGameFinished(bool youWin)
     {
         _battling = false;
+        if (youWin)
+        {
+            _onGameFinished = 1;
+        }
+        else
+        {
+            _onGameFinished = 2;
+        }
     }
 
-    
+    public void GoStartScene()
+    {
+        SceneManager.LoadScene("Start");
+    }
 }
