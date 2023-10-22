@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -37,6 +38,11 @@ public class MinesweeperManager : MonoBehaviour
     [SerializeField] GameObject _mineClickedNotificationPanel;
 
     [SerializeField] GameObject _timeTextUntilAddLinesRun;
+
+    bool _doingReadyGo = false;
+    float _elapsedTimeFromStartReadyGo = 0;
+    [SerializeField] GameObject _readyGoPanel;
+    [SerializeField] GameObject _readyGoText;
     
     public void Init()
     {
@@ -75,12 +81,36 @@ public class MinesweeperManager : MonoBehaviour
             Init();
             GoingInit = false;
             _initializeFinished = true;
+            _doingReadyGo = true;
             Debug.Log("Initizalize finished.");
+        }
+
+        if (_doingReadyGo)
+        {
+            _elapsedTimeFromStartReadyGo += Time.deltaTime;
+            _readyGoPanel.SetActive(true);
+            if (_elapsedTimeFromStartReadyGo >= 1)
+            {
+                if (_readyGoText.GetComponent<TextMeshProUGUI>().text != "Go!")
+                {
+                    _readyGoText.GetComponent<TextMeshProUGUI>().text = "Go!";
+                }
+
+                if (_elapsedTimeFromStartReadyGo >= 1.5f)
+                {
+                    _readyGoPanel.SetActive(false);
+                    _doingReadyGo = false;
+                }
+
+            }
+
         }
 
         if (_initializeFinished)
         {
-            if (!_unclickableFromMissClick)
+            
+
+            if (!_unclickableFromMissClick && !_doingReadyGo)
             {
                 if (Input.GetMouseButtonDown(0))
                 {
