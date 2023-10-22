@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class MinesweeperManager : MonoBehaviour
 {
@@ -26,6 +27,7 @@ public class MinesweeperManager : MonoBehaviour
 
     bool _goAddLines = false;
     int _addedLinesLength = 0;
+    float _elapsedTimeFromAddLinesCall = 0;
 
     public int AmountOfInitOpeningLines = -1; // will be initialized when match start.
 
@@ -34,7 +36,8 @@ public class MinesweeperManager : MonoBehaviour
     float _elapsedTimeSinceBoardBecameUnclickable = 0;
     [SerializeField] GameObject _mineClickedNotificationPanel;
 
-
+    [SerializeField] GameObject _timeTextUntilAddLinesRun;
+    bool _goAddLinesCount = false;
     
     public void Init()
     {
@@ -109,10 +112,25 @@ public class MinesweeperManager : MonoBehaviour
 
         if (_goAddLines)
         {
-            _goAddLines = false;
-            _addLines.AddLines(ref _board, _addedLinesLength);
+            if (!_timeTextUntilAddLinesRun.activeSelf)
+            {
+                _timeTextUntilAddLinesRun.SetActive(true);
+            }
+            _elapsedTimeFromAddLinesCall += Time.deltaTime;
+            float remainingTime = LinesAdder.DURATION_FROM_ADDLINES_CALL - _elapsedTimeFromAddLinesCall;
+            _timeTextUntilAddLinesRun.GetComponent<Text>().text = $"Until AddLines: {remainingTime.ToString("f2")}";
+            if (_elapsedTimeFromAddLinesCall > LinesAdder.DURATION_FROM_ADDLINES_CALL)
+            {
+                _elapsedTimeFromAddLinesCall = 0;
+                _goAddLines = false;
+                _addLines.AddLines(ref _board, _addedLinesLength);
+                _timeTextUntilAddLinesRun.SetActive(false);
 
+            }
+            
         }
+
+        
 
         
 
@@ -211,7 +229,10 @@ public class MinesweeperManager : MonoBehaviour
 
     public void AddLines(int addedLinesLength)
     {
-        _goAddLines = true;
+        if (addedLinesLength > 0)
+        {
+            _goAddLines = true;
+        }
         _addedLinesLength = addedLinesLength;
     }
 

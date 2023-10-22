@@ -7,6 +7,8 @@ public class LinesAdder
     readonly int _boardWidth;
     readonly int _boardHeight;
 
+    public static readonly float DURATION_FROM_ADDLINES_CALL = 1f;
+
 
     public LinesAdder(int boardWidth, int boardHeight)
     {
@@ -17,8 +19,7 @@ public class LinesAdder
 
     public void AddLines(ref Board board, int addedLinesLength)
     {
-
-        if (addedLinesLength == 0)
+        if (addedLinesLength <= 0)
         {
             
             return;
