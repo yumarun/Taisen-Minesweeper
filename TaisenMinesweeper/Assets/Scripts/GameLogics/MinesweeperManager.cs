@@ -37,7 +37,6 @@ public class MinesweeperManager : MonoBehaviour
     [SerializeField] GameObject _mineClickedNotificationPanel;
 
     [SerializeField] GameObject _timeTextUntilAddLinesRun;
-    bool _goAddLinesCount = false;
     
     public void Init()
     {

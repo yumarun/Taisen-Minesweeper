@@ -27,9 +27,13 @@ public class GameManager : MonoBehaviour
     int _amountOfInitOpeningLines = 5;
     public static readonly float BOARD_UNCLICKABLE_DURATION = 3f;
 
+    [SerializeField] GameObject _waitingOpponentPanel;
+
     [SerializeField] GameObject _panelOnGameFinished;
     [SerializeField] GameObject _textWon;
     [SerializeField] GameObject _textLost;
+
+    bool _onMatchDecided = false;
 
     // ’Êí: 0, 
     // I—¹ & won: 1,
@@ -56,6 +60,12 @@ public class GameManager : MonoBehaviour
 
                 _client.SendBoardInfo(_minesweeperManager.GetBoardState());
             }
+        }
+
+        if (_onMatchDecided)
+        {
+            _onMatchDecided = false;
+            _waitingOpponentPanel.SetActive(false);
         }
 
         if (_onGameFinished >= 1)
@@ -89,6 +99,7 @@ public class GameManager : MonoBehaviour
         _client.Init();
         MatchStart();
         _startPanel.SetActive(false);
+        _waitingOpponentPanel.SetActive(true);
     }
 
     void MatchStart()
@@ -98,7 +109,7 @@ public class GameManager : MonoBehaviour
 
     public void OnMatchDecided()
     {
-        Debug.Log("MATCH_DECIDED");
+        _onMatchDecided = true;
         InitGame();
 
         _matching = false;
