@@ -28,10 +28,12 @@ public class Board
 
     UIManager _testUIManager; // è¡ÇπÇÈ?
 
-    [SerializeField] // è¡ÇπÇÈ?
+    //[SerializeField] // è¡ÇπÇÈ?
     CellImageAsset _cellImageAsset;
 
     bool _vsCPU;
+
+
 
 
     public Board(CellImageAsset cellImages, GameObject cellPrefab, UIManager testUIManager, bool vsCPU)
