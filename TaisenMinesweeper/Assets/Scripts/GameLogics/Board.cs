@@ -26,13 +26,15 @@ public class Board
     int _amountOfAlreadyOpenedCells;
 
 
-    UIManager _testUIManager;
+    UIManager _testUIManager; // Á‚¹‚é?
 
-    [SerializeField]
+    [SerializeField] // Á‚¹‚é?
     CellImageAsset _cellImageAsset;
 
+    bool _vsCPU;
 
-    public Board(CellImageAsset cellImages, GameObject cellPrefab, UIManager testUIManager)
+
+    public Board(CellImageAsset cellImages, GameObject cellPrefab, UIManager testUIManager, bool vsCPU)
     {
         _cellImageAsset = cellImages;
         _cellPrefab = cellPrefab;
@@ -42,7 +44,10 @@ public class Board
         _amountOfAlreadyOpenedCells = 0;
         _amountOfMines = AmountOfMinesAtFirst;
         _testUIManager = testUIManager;
+        _vsCPU = vsCPU;
     }
+
+    
 
     public void Make(CellInfo[,] tmpCellsInfo)
     {
@@ -164,7 +169,15 @@ public class Board
 
     void OnExploded()
     {
-        MinesweeperManager.GoMakeBoardUnClickable = true;
+        if (!_vsCPU)
+        {
+            MinesweeperManager.GoMakeBoardUnClickable = true;
+        }
+        else
+        {
+            // TODO
+            Debug.Log("you misclicked in cpu mode.");
+        }
 
     }
 
@@ -218,23 +231,23 @@ public class Board
         return (safeMinesCount, allMinesCount - safeMinesCount);
     }
 
-    public int GetOpenedCellCountInSquare(int leftUpCoordX, int leftUpCoordY, int rightDownCoordX, int rightDownCoordY)
-    {
-        int ret = 0;
+    //public int GetOpenedCellCountInSquare(int leftUpCoordX, int leftUpCoordY, int rightDownCoordX, int rightDownCoordY)
+    //{
+    //    int ret = 0;
 
-        for (int i = leftUpCoordY; i >= rightDownCoordY; i--)
-        {
-            for (int j = leftUpCoordX; j <= rightDownCoordX; j++)
-            {
-                if (_cells[i, j].IsOpend && _cells[i, j].WrittenValue != -1)
-                {
-                    ret++;
-                }
-            }
-        }
+    //    for (int i = leftUpCoordY; i >= rightDownCoordY; i--)
+    //    {
+    //        for (int j = leftUpCoordX; j <= rightDownCoordX; j++)
+    //        {
+    //            if (_cells[i, j].IsOpend && _cells[i, j].WrittenValue != -1)
+    //            {
+    //                ret++;
+    //            }
+    //        }
+    //    }
 
-        return ret;
-    }
+    //    return ret;
+    //}
 
     bool IsNowMeetingClearConditions()
     {
@@ -250,7 +263,10 @@ public class Board
     void OnClear()
     {
         Debug.Log("<color=yellow>Clear!!!</color>");
-        ClientNetworkManager.SendWinOrLoseResult(true);
+        if (!_vsCPU)
+        {
+            ClientNetworkManager.SendWinOrLoseResult(true);
+        }
     }
 
     public CellInfo[,] GetState()
@@ -346,16 +362,16 @@ public class Board
         }
     }
 
-    public static bool IsOutOfBoardRange(int x, int y)
+    bool IsOutOfBoardRange(int x, int y)
     {
         return (x < 0 || x >= Board.BoardWidth || y < 0 || y >= Board.BoardHeight);
     }
 
-    public void AddAmountOfMines(int amount)
-    {
-        _amountOfMines += amount;
-        Debug.Log(_amountOfMines);
-    }
+    //public void AddAmountOfMines(int amount)
+    //{
+    //    _amountOfMines += amount;
+    //    Debug.Log(_amountOfMines);
+    //}
 
 
     public int GetAmountOfOpenedCells()
