@@ -10,8 +10,7 @@ public class UIManager: System.Object
     [SerializeField]
     TextMeshProUGUI _FlagCountText;
 
-    [SerializeField]
-    TextMeshProUGUI _openedCountText;
+    
 
     public void InitializeUI(int amountOfMine)
     {

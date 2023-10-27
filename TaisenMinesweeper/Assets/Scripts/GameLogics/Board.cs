@@ -26,14 +26,13 @@ public class Board
     int _amountOfAlreadyOpenedCells;
 
 
-    UIManager _testUIManager; // Á‚¹‚é?
+    //UIManager _testUIManager; // Á‚¹‚é?
 
-    //[SerializeField] // Á‚¹‚é?
     CellImageAsset _cellImageAsset;
 
     bool _vsCPU;
 
-
+    int _flagCount;
 
 
     public Board(CellImageAsset cellImages, GameObject cellPrefab, UIManager testUIManager, bool vsCPU)
@@ -45,8 +44,9 @@ public class Board
         _amountOfAutomaticallyOpenedCells = 0;
         _amountOfAlreadyOpenedCells = 0;
         _amountOfMines = AmountOfMinesAtFirst;
-        _testUIManager = testUIManager;
+        //_testUIManager = testUIManager;
         _vsCPU = vsCPU;
+        _flagCount = AmountOfMinesAtFirst;
     }
 
     
@@ -198,15 +198,15 @@ public class Board
         if (_cells[y, x].IsFlagged)
         {
             _cells[y, x].IsFlagged = false;
-            _testUIManager.IncrementFlagCount();
+            _flagCount++;
             _cells[y, x].UnFlag(_cellImageAsset._unOpenedUnflagedImage);
         }
         else
         {
-            if (_testUIManager.GetFlagCount() > 0)
+            if (_flagCount > 0)
             {
                 _cells[y, x].IsFlagged = true;
-                _testUIManager.DecrementFlagCount();
+                _flagCount--;
                 _cells[y, x].Flag(_cellImageAsset._unOpenedFlagedImage);
             }
         }
