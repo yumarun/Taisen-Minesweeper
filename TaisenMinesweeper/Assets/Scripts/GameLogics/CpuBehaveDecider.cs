@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class CpuBehaveDecider 
+public class CpuBehaveDecider
 {
 
     int _level;
@@ -19,38 +19,88 @@ public class CpuBehaveDecider
         _level = level;
         if (_level == 1)
         {
-            _durationBetweenAttack = 5f;
+            _durationBetweenAttack = 0.5f;
         }
     }
 
-    public (int, int, int) Action(CellInfo[,] cpuInfo, CellInfo usrInfo, float deltaTime)
+    public (int, int, int) Action(CellInfo[,] cpuInfo, float deltaTime)
     {
         // arg1
-        //  -2: 負け
-        //  -1: 何もしない
-        //  0: 左クリック
-        //  1: 右クリック
+        //  -2: won! 
+        //  -1: do nothing
+        //  0: left click
+        //  1: right click
         // arg1, arg2
-        //  -1, -1: arg1 == -1 or -2
+        //  -1, -1: arg1 == -1 
         //  otherwise: x, y, that is coordinates to be operated
-        (int, int, int) ret;
-
         
+
+
 
         _elapsedTimeSincePrevAction += deltaTime;
         if (_elapsedTimeSincePrevAction > _durationBetweenAttack)
         {
             _elapsedTimeSincePrevAction = 0;
 
-            var (a, b) = Calclate(cpuInfo);
-            
+            var (openableCells, checkableCells) = Calclate(cpuInfo);
+
+
+
+
+            bool existingOpenableCellsOrCheckableCells = false;
+
+
+
+            for (int y = Board.BoardHeight - 1; y >= 0; y--)
+            {
+                for (int x = 0; x < Board.BoardWidth; x++)
+                {
+                    if (openableCells[y, x])
+                    {
+                        existingOpenableCellsOrCheckableCells = true;
+                        return (0, x, y);
+
+                    }
+                }
+            }
+            for (int y = Board.BoardHeight - 1; y >= 0; y--)
+            {
+                for (int x = 0; x < Board.BoardWidth; x++)
+                {
+                    if (checkableCells[y, x])
+                    {
+                        existingOpenableCellsOrCheckableCells = true;
+                        return (1, x, y);
+                    }
+                }
+            }
+
+            if (!existingOpenableCellsOrCheckableCells)
+            {
+                // select a unopened cell from the board.
+                for (int y = Board.BoardHeight - 1; y >= 0; y--)
+                {
+                    for (int x = 0; x < Board.BoardWidth; x++)
+                    {
+                        
+                        if (!cpuInfo[y, x].IsOpend && !cpuInfo[y, x].IsSafeBomb)
+                        {
+                            return (0, x, y);
+                        }
+                    }
+                }
+            }
+
+            return (-2, -1, -1);
+
         }
 
-        
+        return (-1, -1, -1);
     }
 
     (bool[,], bool[,]) Calclate(CellInfo[,] cpuInfo)
     {
+
         var openableCells = new bool[Board.BoardHeight, Board.BoardWidth];
         var checkableCells = new bool[Board.BoardHeight, Board.BoardWidth];
 
@@ -81,7 +131,7 @@ public class CpuBehaveDecider
                     var nx = x + _dx[k];
                     if (ny < 0 || ny >= Board.BoardHeight || nx < 0 || nx >= Board.BoardWidth) { continue; }
 
-                    if (cpuInfo[ny, nx].IsFlagged)
+                    if (cpuInfo[ny, nx].IsFlagged || cpuInfo[ny, nx].IsSafeBomb)
                     {
                         flaggedCells.Add(k);
                     }
@@ -94,6 +144,7 @@ public class CpuBehaveDecider
                 var remainingBomsNum = cpuInfo[y, x].WrittenValue - flaggedCells.Count;
                 if (remainingBomsNum == 0)
                 {
+                    
                     for (int k = 0; k < unopenedCells.Count; k++)
                     {
                         openableCells[y + _dy[unopenedCells[k]], x + _dx[unopenedCells[k]]] = true;
@@ -103,6 +154,7 @@ public class CpuBehaveDecider
                 {
                     for (int k = 0; k < unopenedCells.Count; k++)
                     {
+                      
                         checkableCells[y + _dy[unopenedCells[k]], x + _dx[unopenedCells[k]]] = true;
                     }
                 }
@@ -135,32 +187,83 @@ public class CpuBehaveDecider
             j1--;
         }
 
-        for (int i = 0; i <  cellSets.Count; i++)
+        j1 = 1;
+        while (j1 < cellSets.Count)
         {
-            for (int j = 0; j < i; j++)
+            for (int i = 0; i < j1; i++)
             {
+                if (cellSets[i].Item1.Count > 0 && cellSets[j1].Item1.Count > 0)
+                {
 
+                    if (cellSets[i].Item1.Count > cellSets[j1].Item1.Count)
+                    {
+                        continue;
+                        CheckCellSets(cellSets[j1], cellSets[i]);
+                    }
+                    else if (cellSets[i].Item1.Count < cellSets[j1].Item1.Count)
+                    {
+                        continue;
+
+                        CheckCellSets(cellSets[i], cellSets[j1]);
+                    }
+                }
             }
+            j1++;
         }
+
+        
 
         void CheckCellSets((SortedSet<(int, int)>, int) subset, (SortedSet<(int, int)>, int) superset)
         {
-            if (!subset.Item1.IsSubsetOf(superset.Item1)) { return; }
+            Debug.Log(205);
+            var subset2 = ChangeSet2(subset.Item1);
+            Debug.Log(207);
+
+            var super2 = ChangeSet2(superset.Item1);
+            Debug.Log(208);
+
+
+            if (!subset2.IsSubsetOf(super2)) { return; }
 
             var diffBoms = superset.Item2 - subset.Item2;
-            superset.Item1.ExceptWith(subset.Item1);
-            var diffCellSet = superset.Item1;
+            super2.ExceptWith(subset2);
+
+
+            var diffCellSet = ChangeSet1(super2);
+
+            Debug.Log(221);
+
+
+            string subset_str = "";
+            string super_str = "";
+            string diff_str = "";
+            foreach (var item in subset.Item1)
+            {
+                subset_str += item.ToString() + " ";
+            }
+            foreach (var item in superset.Item1)
+            {
+                super_str += item.ToString() + " "; 
+            }
+            foreach (var item in diffCellSet)
+            {
+                diff_str += item.ToString() + " ";  
+            }
+
+
+            Debug.Log($"subset: {subset_str}, super: {super_str}, diff: {diff_str}");
 
             if (diffBoms == 0)
             {
-                foreach( var (y, x) in diffCellSet )
+                foreach (var (y, x) in diffCellSet)
                 {
+                    Debug.Log($"from 215 {y} {x}");
                     openableCells[y, x] = true;
                 }
             }
             else if (diffBoms == diffCellSet.Count)
             {
-                foreach( var (y, x) in diffCellSet)
+                foreach (var (y, x) in diffCellSet)
                 {
                     checkableCells[y, x] = true;
                 }
@@ -168,7 +271,7 @@ public class CpuBehaveDecider
             else
             {
                 bool exists = false;
-                foreach(var cellset in cellSets)
+                foreach (var cellset in cellSets)
                 {
                     if (cellset.Item1 == diffCellSet)
                     {
@@ -182,12 +285,35 @@ public class CpuBehaveDecider
                     cellSets.Add((diffCellSet, diffBoms));
                 }
             }
+
+            
         }
 
+        return (openableCells, checkableCells);
     }
 
     bool InBoard(int y, int x)
     {
         return (0 <= y && y < Board.BoardHeight && 0 <= x && x < Board.BoardWidth);
+    }
+
+    SortedSet<(int, int)> ChangeSet1(SortedSet<int> st)
+    {
+        var ret = new SortedSet<(int, int)>();
+        foreach (var now in st)
+        {
+            ret.Add((now / Board.BoardWidth, now % Board.BoardWidth));
+        }
+        return ret;
+    }
+
+    SortedSet<int> ChangeSet2(SortedSet<(int, int)> st)
+    {
+        var ret = new SortedSet<int>();
+        foreach (var now in st)
+        {
+            ret.Add(now.Item1 * Board.BoardWidth + now.Item2);
+        }
+        return ret;
     }
 }

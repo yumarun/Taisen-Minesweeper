@@ -41,6 +41,11 @@ public class Board
 
     BoardType _boardType;
 
+    public static readonly string CELLS_PARENT_GAMEOBJECT_NAME_FOR_CPU = "cellsParentForCPU";
+    public static readonly string CELLS_PARENT_GAMEOBJECT_NAME_FOR_USR = "cellsParentForUsr";
+
+    GameObject _cellsParentForCPU;
+    GameObject _cellsParentForUsr;
 
     public Board(CellImageAsset cellImages, GameObject cellPrefab, BoardType boardType) // TODO: vsCPU‚Å‚È‚­enum’l‚ð“n‚·‚æ‚¤‚É
     {
@@ -59,8 +64,15 @@ public class Board
 
     public void Make(CellInfo[,] tmpCellsInfo)
     {
-        var cellsParentForCPU = new GameObject("cellsParentForCPU");
-        var cellsParentForUsr = new GameObject("cellsParentForUsr");
+        if (_boardType == BoardType.UserBoardInVsCpuMode)
+        {
+            _cellsParentForUsr = new GameObject(CELLS_PARENT_GAMEOBJECT_NAME_FOR_USR);
+
+        }
+        else if (_boardType == BoardType.CPUBoardInVsCpuMode)
+        {
+            _cellsParentForCPU = new GameObject(CELLS_PARENT_GAMEOBJECT_NAME_FOR_CPU);
+        }
         for (int i = 0; i < BoardHeight; i++)
         {
             for (int j = 0; j < BoardWidth; j++)
@@ -82,7 +94,7 @@ public class Board
                     cell.GetComponent<SpriteRenderer>().sprite = _cellImageAsset._unOpenedUnflagedImage;
                     cell.GetComponent<Cell>().Initialize(j, i); // x‚Æy‘ã“ü
                     cell.transform.position = new Vector3(j, i, 0);
-                    cell.transform.parent = cellsParentForUsr.transform;
+                    cell.transform.parent = _cellsParentForUsr.transform;
 
                     _cells[i, j] = cell.GetComponent<Cell>();
                     _cells[i, j].WrittenValue = tmpCellsInfo[i, j].WrittenValue;
@@ -94,7 +106,7 @@ public class Board
                     cell.GetComponent<SpriteRenderer>().sprite = _cellImageAsset._unOpenedUnflagedImage;
                     cell.GetComponent<Cell>().Initialize(j, i); // x‚Æy‘ã“ü
                     cell.transform.position = new Vector3(j, i, 0);
-                    cell.transform.parent = cellsParentForCPU.transform;
+                    cell.transform.parent = _cellsParentForCPU.transform;
 
                     _cells[i, j] = cell.GetComponent<Cell>();
                     _cells[i, j].WrittenValue = tmpCellsInfo[i, j].WrittenValue;
@@ -103,11 +115,19 @@ public class Board
             }
         }
 
-        cellsParentForUsr.transform.position = new Vector3(-6f, -4.6f);
-        cellsParentForUsr.transform.localScale = Vector3.one * 0.5f;
+        if (_boardType == BoardType.UserBoardInVsCpuMode)
+        {
+            _cellsParentForUsr.transform.position = new Vector3(-6f, -4.6f);
+            _cellsParentForUsr.transform.localScale = Vector3.one * 0.5f;
 
-        cellsParentForCPU.transform.position = new Vector3(3.8f, -3f);
-        cellsParentForCPU.transform.localScale = Vector3.one * 0.3f;
+        }
+        else if (_boardType == BoardType.CPUBoardInVsCpuMode)
+        {
+            _cellsParentForCPU.transform.position = new Vector3(3.8f, -3f);
+            _cellsParentForCPU.transform.localScale = Vector3.one * 0.3f;
+        }
+
+        
     }
 
     public bool TryOpenCell(int y, int x, bool fromClick)
@@ -298,6 +318,14 @@ public class Board
         if (_boardType == BoardType.UserBoardInOnlineMode)
         {
             ClientNetworkManager.SendWinOrLoseResult(true);
+        }
+        else if (_boardType == BoardType.UserBoardInVsCpuMode)
+        {
+            VsCpuManager.WinLose = 0;
+        }
+        else if (_boardType == BoardType.CPUBoardInVsCpuMode)
+        {
+            VsCpuManager.WinLose = 1;
         }
     }
 

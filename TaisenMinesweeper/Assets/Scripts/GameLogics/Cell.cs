@@ -79,7 +79,6 @@ public class Cell : MonoBehaviour
     public void Flag(Sprite flagSprite)
     {
         gameObject.GetComponent<SpriteRenderer>().sprite= flagSprite;
-        Debug.Log("ƒtƒ‰ƒO‚³‚ê‚½");
     }
 
     public void UnFlag(Sprite unOpendSprite)

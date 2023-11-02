@@ -62,8 +62,22 @@ public class VsCpuManager : MonoBehaviour
 
     public static readonly int MAX_ADDED_LINES_NUM = 5;
 
+    readonly int ENEMY_LEVELS_NUM = 1;
+   
+    /// <summary>
+    /// -1: default
+    /// 0: usr won
+    /// 1: cpu won
+    /// </summary>
+    public static int WinLose;
 
-    bool _cpuWon = false;
+    int _totalInflictedDamageToCpu;
+
+    [SerializeField]
+    GameObject _lostPanel;
+
+    [SerializeField]
+    GameObject _wonPanel;
 
     void Start()
     {
@@ -97,8 +111,19 @@ public class VsCpuManager : MonoBehaviour
         if (_running)
         {
             _timer.Mesure();
-            _cpuWon = _cpu.Process();
-            
+            var cpuCond = _cpu.Process();
+
+
+            if (cpuCond == 2 || WinLose == 1) // if cpu won
+            {
+                WinLose = -1;
+                EndGame(false);
+            }
+            else if (cpuCond == 1 || WinLose == 0) // if cpu lost
+            {
+                WinLose = -1;
+                EndGame(true);
+            }
 
             if (!_unclickableFromMissClick)
             {
@@ -130,18 +155,14 @@ public class VsCpuManager : MonoBehaviour
                 _elapsedTimeForSendingInfo = 0;
                 
 
-                // âº1
-                // cpuinfo = _cpu.GetInfo();
-                // UpdateUserBoard(cpuinfo);
-                // myInfo = GetInfo();
-                // _cpu.UpdateBoard(myinfo);
+                var cpuinfo = _cpu.GetInfo();
+                //Debug.Log($"cpuinfo: {cpuinfo}");
+                UpdateUserBoard(cpuinfo);
+                var myInfo = GetInfo();
+                _cpu.UpdateWithOpponentState(myInfo / 10);
             }
 
-            // âº1
-            // if cpuWon
-            //   GameEnd(false) // íÜÇ≈cpuÇÃèàóùÇ∆ÇﬂÇÈ
-            // if userWon
-            //   GameEnd(true)
+            
 
         } // <-- _running
     }
@@ -175,16 +196,18 @@ public class VsCpuManager : MonoBehaviour
     {
         if (_defeatedEnemies == null)
         {
-            _defeatedEnemies = new bool[0];
+            _defeatedEnemies = new bool[ENEMY_LEVELS_NUM];
         }
 
         // todo: webglî≈Ç∆ÇªÇÍà»äOÇ≈ï™äÚ
         //  apply _defatedEnemis to the UI.
-
+        
     }
 
     public void OnCpuSelected(int lv)
     {
+        WinLose = -1;
+        _totalInflictedDamageToCpu = 0;
         _cpuLevel = lv;
         _opponentSelectingPanel.SetActive(false);
         _battleScenePanel.SetActive(true);
@@ -213,7 +236,7 @@ public class VsCpuManager : MonoBehaviour
 
         _myBoard.Make(tmpCellsinfo);
 
-        _addLines = new LinesAdder(Board.BoardWidth, Board.BoardHeight);
+        _addLines = new LinesAdder(Board.BoardWidth, Board.BoardHeight, Board.BoardType.UserBoardInVsCpuMode);
 
         for (int i = 0; i < AmountOfInitOpeningLines; i++)
         {
@@ -308,5 +331,52 @@ public class VsCpuManager : MonoBehaviour
         damage = Mathf.Min(damage, MAX_ADDED_LINES_NUM * 10);
         totalInflictedDamage += damage;
         return damage;
+    }
+
+    void UpdateUserBoard(int cpuInfo)
+    {
+        _addLines.AddLines(ref _myBoard, cpuInfo);
+    }
+    
+    int GetInfo()
+    {
+        var damageToCpu = CalcDamage(ref _totalInflictedDamageToCpu, _myBoard.GetAmountOfOpenedCells());
+        return damageToCpu;
+    }
+
+    void EndGame(bool userWon)
+    {
+        if (userWon)
+        {
+            Debug.Log("Usr WOn!!!");
+            _wonPanel.SetActive(true);
+            OnGameEnd();
+        }
+        else
+        {
+            Debug.Log("Cpu WOn!!!");
+            _lostPanel.SetActive(true);
+            OnGameEnd();
+        }
+    }
+
+    void OnGameEnd()
+    {
+        _timer.Stop();
+        _running = false;
+    }
+
+    public void BackToCPUSelectScene()
+    {
+        
+
+        Destroy(GameObject.Find(Board.CELLS_PARENT_GAMEOBJECT_NAME_FOR_USR));
+        Destroy(GameObject.Find(Board.CELLS_PARENT_GAMEOBJECT_NAME_FOR_CPU));
+
+        _wonPanel.SetActive(false);
+        _lostPanel.SetActive(false);
+
+        _opponentSelectingPanel.SetActive(true);
+        _battleScenePanel.SetActive(false);
     }
 }

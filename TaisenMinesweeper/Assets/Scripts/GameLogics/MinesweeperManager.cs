@@ -56,7 +56,7 @@ public class MinesweeperManager : MonoBehaviour
         _uiManager.InitializeUI(Board.AmountOfMinesAtFirst);
 
 
-        _addLines = new LinesAdder(Board.BoardWidth, Board.BoardHeight);
+        _addLines = new LinesAdder(Board.BoardWidth, Board.BoardHeight, Board.BoardType.UserBoardInOnlineMode);
 
 
         // TODO: ã”s‚ÌƒZƒ‹‚ğ‹ó‚¯‚é

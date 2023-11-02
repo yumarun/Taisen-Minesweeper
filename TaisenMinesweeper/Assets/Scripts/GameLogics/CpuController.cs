@@ -18,6 +18,8 @@ public class CpuController : MonoBehaviour
     int _amountOfTotalOpenedCellsFromClick;
     int _amountOfTotalInflictedDamageToUser;
 
+    CpuBehaveDecider _behaveDecider;
+
     void Start()
     {
         _initialized = false;   
@@ -33,6 +35,8 @@ public class CpuController : MonoBehaviour
         MakeBoard();
         _amountOfTotalOpenedCellsFromClick = 0;
         _amountOfTotalInflictedDamageToUser = 0;
+        _behaveDecider = new CpuBehaveDecider(level);
+        _addLines = new LinesAdder(Board.BoardWidth, Board.BoardHeight, Board.BoardType.CPUBoardInVsCpuMode);
         _initialized = true;
     }
 
@@ -48,37 +52,63 @@ public class CpuController : MonoBehaviour
         _running = true;
     }
 
-    public bool Process() // ï‘ÇËílÇÕvoidÇ∂Ç·Ç»Ç≠ïœÇ¶ÇÈ
+    public int Process() // ï‘ÇËílÇÕvoidÇ∂Ç·Ç»Ç≠ïœÇ¶ÇÈ
     {
-        var youLost = false;
+        // 0: neigher WON nor LOST
+        // 1: Cpu lost
+        // 2: Cpu won
+        var ret = 0;
 
         if (!_running)
         {
             Debug.LogError("CPU isn't running and can't process.");
-            return youLost;
+            return 0;
         }
 
-        Debug.Log("Runnning!");
+        _amountOfTotalOpenedCellsFromClick = _board.GetAmountOfOpenedCells();
 
+        var (action, x, y) = _behaveDecider.Action(_board.GetState(), Time.deltaTime);
+        if (action == -1)
+        {
+            //Debug.Log("Do nothing..");
+            return 0;
+        }
+        else if (action == 0)
+        {
+            _board.TryOpenCell(y, x, true);
+        }
+        else if (action == 1)
+        {
+            _board.TryFlagCell(y, x);
+        }
+        else if (action == -2)
+        {
+            return 2;
+        }
 
-
-        return youLost;
+        return ret;
     }
 
-    public void UpdateWithOpponentState() // à¯êîí«â¡
+    
+
+    public void UpdateWithOpponentState(int addedLines) // à¯êîí«â¡
     {
         if (!_running)
         {
             Debug.LogError("CPU isn't running and can't update with opponent state.");
             return;
         }
+
+        _addLines.AddLines(ref _board, addedLines);
     }
 
     public int GetInfo()
     {
+
+        //Debug.Log($"inf: {_amountOfTotalInflictedDamageToUser}, tot: {_amountOfTotalOpenedCellsFromClick}");
         var damageToUser = VsCpuManager.CalcDamage(ref _amountOfTotalInflictedDamageToUser, 
             _amountOfTotalOpenedCellsFromClick);
-        return damageToUser;
+        return damageToUser / 10;
     }
 
     void MakeBoard()
@@ -91,7 +121,7 @@ public class CpuController : MonoBehaviour
 
 
 
-        _addLines = new LinesAdder(Board.BoardWidth, Board.BoardHeight);
+        _addLines = new LinesAdder(Board.BoardWidth, Board.BoardHeight, Board.BoardType.CPUBoardInVsCpuMode);
 
 
         for (int i = 0; i < VsCpuManager.AmountOfInitOpeningLines; i++)

@@ -10,10 +10,14 @@ public class LinesAdder
     public static readonly float DURATION_FROM_ADDLINES_CALL = 1f;
 
 
-    public LinesAdder(int boardWidth, int boardHeight)
+    Board.BoardType _boardType;
+
+
+    public LinesAdder(int boardWidth, int boardHeight, Board.BoardType boardType)
     {
         _boardWidth = boardWidth;
         _boardHeight = boardHeight;
+        _boardType = boardType;
     }
 
 
@@ -30,7 +34,19 @@ public class LinesAdder
         if (unsafeMinesNum != 0)
         {
             Debug.Log("未開封のマスがありプレイヤーのまけ");
-            ClientNetworkManager.SendWinOrLoseResult(false);
+            if (_boardType == Board.BoardType.UserBoardInOnlineMode)
+            {
+                ClientNetworkManager.SendWinOrLoseResult(false);
+            }
+            else if (_boardType == Board.BoardType.UserBoardInVsCpuMode)
+            {
+                VsCpuManager.WinLose = 1;
+            }
+            else if (_boardType == Board.BoardType.CPUBoardInVsCpuMode)
+            {
+                VsCpuManager.WinLose = 0;
+
+            }
         }
 
         var nowBoardState = board.GetState();

@@ -154,4 +154,9 @@ public class GameManager : MonoBehaviour
     {
         SceneManager.LoadScene("Start");
     }
+
+    public void GoVsCpuScene()
+    {
+        SceneManager.LoadScene("VsCPU");
+    }
 }
