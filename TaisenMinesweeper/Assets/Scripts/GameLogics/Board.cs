@@ -6,12 +6,19 @@ using UnityEngine;
 
 public class Board
 {
+    public enum BoardType
+    {
+        UserBoardInOnlineMode,
+        UserBoardInVsCpuMode,
+        CPUBoardInVsCpuMode
+    }
+
     public static readonly int BoardHeight = 15;
     public static readonly int BoardWidth = 15;
     public static readonly int AmountOfMinesAtFirst = 30;
 
 
-
+    
 
     GameObject _cellPrefab;
 
@@ -26,16 +33,16 @@ public class Board
     int _amountOfAlreadyOpenedCells;
 
 
-    //UIManager _testUIManager; // è¡ÇπÇÈ?
 
     CellImageAsset _cellImageAsset;
 
-    bool _vsCPU;
 
     int _flagCount;
 
+    BoardType _boardType;
 
-    public Board(CellImageAsset cellImages, GameObject cellPrefab, UIManager testUIManager, bool vsCPU)
+
+    public Board(CellImageAsset cellImages, GameObject cellPrefab, BoardType boardType) // TODO: vsCPUÇ≈Ç»Ç≠enumílÇìnÇ∑ÇÊÇ§Ç…
     {
         _cellImageAsset = cellImages;
         _cellPrefab = cellPrefab;
@@ -44,8 +51,7 @@ public class Board
         _amountOfAutomaticallyOpenedCells = 0;
         _amountOfAlreadyOpenedCells = 0;
         _amountOfMines = AmountOfMinesAtFirst;
-        //_testUIManager = testUIManager;
-        _vsCPU = vsCPU;
+        _boardType = boardType;
         _flagCount = AmountOfMinesAtFirst;
     }
 
@@ -53,37 +59,74 @@ public class Board
 
     public void Make(CellInfo[,] tmpCellsInfo)
     {
-
+        var cellsParentForCPU = new GameObject("cellsParentForCPU");
+        var cellsParentForUsr = new GameObject("cellsParentForUsr");
         for (int i = 0; i < BoardHeight; i++)
         {
             for (int j = 0; j < BoardWidth; j++)
             {
-                var cell = GameObject.Instantiate(_cellPrefab) as GameObject;
-                cell.GetComponent<SpriteRenderer>().sprite = _cellImageAsset._unOpenedUnflagedImage;
-                cell.GetComponent<Cell>().Initialize(j, i); // xÇ∆yë„ì¸
-                cell.transform.position = new Vector3(j, i, 0);
+                if (_boardType == BoardType.UserBoardInOnlineMode)
+                {
+                    var cell = GameObject.Instantiate(_cellPrefab) as GameObject;
+                    cell.GetComponent<SpriteRenderer>().sprite = _cellImageAsset._unOpenedUnflagedImage;
+                    cell.GetComponent<Cell>().Initialize(j, i); // xÇ∆yë„ì¸
+                    cell.transform.position = new Vector3(j, i, 0);
 
-                _cells[i, j] = cell.GetComponent<Cell>();
-                _cells[i, j].WrittenValue = tmpCellsInfo[i, j].WrittenValue;
+                    _cells[i, j] = cell.GetComponent<Cell>();
+                    _cells[i, j].WrittenValue = tmpCellsInfo[i, j].WrittenValue;
+                }
+                else if (_boardType == BoardType.UserBoardInVsCpuMode)
+                {
+                    var cell = GameObject.Instantiate(_cellPrefab) as GameObject;
+                    cell.tag = "UserCell";
+                    cell.GetComponent<SpriteRenderer>().sprite = _cellImageAsset._unOpenedUnflagedImage;
+                    cell.GetComponent<Cell>().Initialize(j, i); // xÇ∆yë„ì¸
+                    cell.transform.position = new Vector3(j, i, 0);
+                    cell.transform.parent = cellsParentForUsr.transform;
+
+                    _cells[i, j] = cell.GetComponent<Cell>();
+                    _cells[i, j].WrittenValue = tmpCellsInfo[i, j].WrittenValue;
+                }
+                else if (_boardType == BoardType.CPUBoardInVsCpuMode)
+                {
+
+                    var cell = GameObject.Instantiate(_cellPrefab) as GameObject;
+                    cell.GetComponent<SpriteRenderer>().sprite = _cellImageAsset._unOpenedUnflagedImage;
+                    cell.GetComponent<Cell>().Initialize(j, i); // xÇ∆yë„ì¸
+                    cell.transform.position = new Vector3(j, i, 0);
+                    cell.transform.parent = cellsParentForCPU.transform;
+
+                    _cells[i, j] = cell.GetComponent<Cell>();
+                    _cells[i, j].WrittenValue = tmpCellsInfo[i, j].WrittenValue;
+                }
+
             }
         }
+
+        cellsParentForUsr.transform.position = new Vector3(-6f, -4.6f);
+        cellsParentForUsr.transform.localScale = Vector3.one * 0.5f;
+
+        cellsParentForCPU.transform.position = new Vector3(3.8f, -3f);
+        cellsParentForCPU.transform.localScale = Vector3.one * 0.3f;
     }
 
-    public void TryOpenCell(int y, int x, bool fromClick)
+    public bool TryOpenCell(int y, int x, bool fromClick)
     {
+        bool clickedMine = false;
+
         if (_cells[y, x].IsOpend)
         {
-            return;
+            return clickedMine;
         }
 
         if (_cells[y, x].IsFlagged)
         {
-            return;
+            return clickedMine;
         }
 
         if (_cells[y, x].IsSafeBomb)
         {
-            return;
+            return clickedMine;
         }
 
         // îöíeÇà¯Ç¢ÇΩÇ∆Ç´
@@ -92,8 +135,9 @@ public class Board
             if (fromClick)
             {
                 OnExploded();
+                clickedMine = true;
             }
-            return;
+            return clickedMine;
         }
         // êîéöÉ}ÉXÇà¯Ç¢ÇΩÇ∆Ç´ // TODO: é¸ÇËÇÃîöíeÇå©Ç¬ÇØÇƒÇªÇÃîöíeÇ…Ç¬Ç¢ÇƒÅCcheckÇïtÇØÇΩÇËÇ∑ÇÈ
         if (_cells[y, x].WrittenValue > 0)
@@ -105,7 +149,7 @@ public class Board
                 OnClear();
             }
 
-            return;
+            return clickedMine;
         }
 
         // ãÛîíÉ}ÉXÇà¯Ç¢ÇΩÇ∆Ç´
@@ -163,15 +207,17 @@ public class Board
         if (IsNowMeetingClearConditions())
         {
             OnClear();
-            return;
+            return clickedMine;
         }
+
+        return clickedMine;
 
     }
 
 
     void OnExploded()
     {
-        if (!_vsCPU)
+        if (_boardType == BoardType.UserBoardInOnlineMode)
         {
             MinesweeperManager.GoMakeBoardUnClickable = true;
         }
@@ -233,27 +279,11 @@ public class Board
         return (safeMinesCount, allMinesCount - safeMinesCount);
     }
 
-    //public int GetOpenedCellCountInSquare(int leftUpCoordX, int leftUpCoordY, int rightDownCoordX, int rightDownCoordY)
-    //{
-    //    int ret = 0;
-
-    //    for (int i = leftUpCoordY; i >= rightDownCoordY; i--)
-    //    {
-    //        for (int j = leftUpCoordX; j <= rightDownCoordX; j++)
-    //        {
-    //            if (_cells[i, j].IsOpend && _cells[i, j].WrittenValue != -1)
-    //            {
-    //                ret++;
-    //            }
-    //        }
-    //    }
-
-    //    return ret;
-    //}
+    
 
     bool IsNowMeetingClearConditions()
     {
-        Debug.Log($"from c: {_amountOfOpenedCellsFromClick}, not from c: {_amountOfAutomaticallyOpenedCells}, already: {_amountOfAlreadyOpenedCells}");
+        //Debug.Log($"from c: {_amountOfOpenedCellsFromClick}, not from c: {_amountOfAutomaticallyOpenedCells}, already: {_amountOfAlreadyOpenedCells}");
 
         if (_amountOfOpenedCellsFromClick + _amountOfAutomaticallyOpenedCells + _amountOfAlreadyOpenedCells 
             == BoardHeight * BoardWidth - _amountOfMines) 
@@ -265,7 +295,7 @@ public class Board
     void OnClear()
     {
         Debug.Log("<color=yellow>Clear!!!</color>");
-        if (!_vsCPU)
+        if (_boardType == BoardType.UserBoardInOnlineMode)
         {
             ClientNetworkManager.SendWinOrLoseResult(true);
         }
@@ -369,11 +399,6 @@ public class Board
         return (x < 0 || x >= Board.BoardWidth || y < 0 || y >= Board.BoardHeight);
     }
 
-    //public void AddAmountOfMines(int amount)
-    //{
-    //    _amountOfMines += amount;
-    //    Debug.Log(_amountOfMines);
-    //}
 
 
     public int GetAmountOfOpenedCells()

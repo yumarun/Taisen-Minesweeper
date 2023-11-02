@@ -73,7 +73,7 @@ public class Cell : MonoBehaviour
             amountOfAutomaticallyOpendCells++;
         }
 
-        UIManager.SetOpenedCountText(amountOfOpendCellsFromClick);
+        //UIManager.SetOpenedCountText(amountOfOpendCellsFromClick);
     }
 
     public void Flag(Sprite flagSprite)

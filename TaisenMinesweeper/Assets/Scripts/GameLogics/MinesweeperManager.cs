@@ -46,7 +46,7 @@ public class MinesweeperManager : MonoBehaviour
     
     public void Init()
     {
-        _board = new Board(_cellImageAsset, _cellPrefab, _uiManager, false);
+        _board = new Board(_cellImageAsset, _cellPrefab, Board.BoardType.UserBoardInOnlineMode);
 
         var tmpCellsinfo = MakeCellsInfo(Board.BoardHeight, Board.BoardWidth, Board.AmountOfMinesAtFirst);
 

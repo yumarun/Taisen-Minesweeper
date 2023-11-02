@@ -9,13 +9,39 @@ public class VsCpuTimer : MonoBehaviour
     TextMeshProUGUI _timerText;
 
     float _timerValue;
-    public float TimerValue {  
+
+    bool _mesuring = false;
+    float TimerValue {  
         get { return _timerValue; } 
         set 
         {
             _timerValue = value;
             _timerText.text = _timerValue.ToString("f1");
         } 
+    }
+
+    void Update()
+    {
+        if (_mesuring)
+        {
+            TimerValue += Time.deltaTime;
+        }
+    }
+
+    public void Mesure()
+    {
+        _mesuring = true;
+    }
+
+    public void Stop()
+    {
+        _mesuring = false;
+    }
+
+    public void ResetTimer()
+    {
+        _mesuring = false;
+        TimerValue = 0;
     }
 
 }

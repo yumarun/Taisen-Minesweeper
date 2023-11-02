@@ -31,27 +31,143 @@ public class VsCpuManager : MonoBehaviour
     [SerializeField]
     GameObject _cellPrefab;
 
-    [SerializeField]
-    UIManager _uiManager;
-
-    [SerializeField]
+    
     LinesAdder _addLines;
 
-    readonly int _amountOfInitOpeningLines = 5;
+    [SerializeField]
+    CpuController _cpu;
+
+    public static readonly int AmountOfInitOpeningLines = 5;
+
+
+    bool _startCountDown = false;
+    float _elapsedTimeForStartCountdown = 0;
+
+    [SerializeField]
+    TextMeshProUGUI _readyGoText;
+
+    [SerializeField]
+    GameObject _readyGoPanel;
+
+    bool _running = false;
+
+    bool _unclickableFromMissClick = false;
+    float _elapsedTimdeSinceUnclickable = 0;
+    readonly float BOARD_UNCLICKABLE_DURATION = 3f;
+    [SerializeField]
+    GameObject _unclickablePanel;
+
+    readonly float SEND_INFO_TO_OPPONENT_DURATION = 3f;
+    float _elapsedTimeForSendingInfo = 0;
+
+    public static readonly int MAX_ADDED_LINES_NUM = 5;
+
+
+    bool _cpuWon = false;
 
     void Start()
     {
         
         UpdateEnemyList();
-        
-
-
-
 
     }
 
     void Update()
     {
+        if (_startCountDown)
+        {
+            _readyGoPanel.SetActive(true);
+            _elapsedTimeForStartCountdown += Time.deltaTime;
+            if (_elapsedTimeForStartCountdown > 1f)
+            {
+                _readyGoText.text = "GO!";
+            }
+            
+            if (_elapsedTimeForStartCountdown > 1.7f)
+            {
+                _elapsedTimeForStartCountdown = 0f;
+                _readyGoPanel.SetActive(false);
+                _startCountDown = false;
+                _running = true;
+                _cpu.StartRunning();
+            }
+
+        }
+
+        if (_running)
+        {
+            _timer.Mesure();
+            _cpuWon = _cpu.Process();
+            
+
+            if (!_unclickableFromMissClick)
+            {
+                if (Input.GetMouseButtonDown(0))
+                {
+                    HandleButtonDown(0);
+                }
+
+                if (Input.GetMouseButtonDown(1))
+                {
+                    HandleButtonDown(1);
+                }
+            }
+            else
+            {
+                _unclickablePanel.SetActive(true);
+                _elapsedTimdeSinceUnclickable += Time.deltaTime;
+                if (_elapsedTimdeSinceUnclickable > BOARD_UNCLICKABLE_DURATION)
+                {
+                    _unclickablePanel.SetActive(false);
+                    _elapsedTimdeSinceUnclickable = 0;
+                    _unclickableFromMissClick = false;
+                }
+            }
+
+            _elapsedTimeForSendingInfo += Time.deltaTime;
+            if (_elapsedTimeForSendingInfo > SEND_INFO_TO_OPPONENT_DURATION)
+            {
+                _elapsedTimeForSendingInfo = 0;
+                
+
+                // âº1
+                // cpuinfo = _cpu.GetInfo();
+                // UpdateUserBoard(cpuinfo);
+                // myInfo = GetInfo();
+                // _cpu.UpdateBoard(myinfo);
+            }
+
+            // âº1
+            // if cpuWon
+            //   GameEnd(false) // íÜÇ≈cpuÇÃèàóùÇ∆ÇﬂÇÈ
+            // if userWon
+            //   GameEnd(true)
+
+        } // <-- _running
+    }
+
+    void HandleButtonDown(int mouseButton)
+    {
+        
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit))
+        {
+            var clickedCell = hit.collider.gameObject.GetComponent<Cell>();
+            if (clickedCell != null && hit.collider.gameObject.tag == "UserCell")
+            {
+                if (mouseButton == 0)
+                {
+                    _unclickableFromMissClick = _myBoard.TryOpenCell(clickedCell.Y, clickedCell.X, true);
+                }
+                else if (mouseButton == 1)
+                {
+                    _myBoard.TryFlagCell(clickedCell.Y, clickedCell.X);
+                }
+            }
+
+        }
         
     }
 
@@ -75,37 +191,31 @@ public class VsCpuManager : MonoBehaviour
         _cpuLevelText.text = $"Level: {lv}";
 
         // initialize timer
-        _timer.TimerValue = 0f;
+        _timer.ResetTimer();
 
 
         // initialize my board
         MakeMyBoard();
 
         // initialize cpu, minimap
-        MakeCpuAndMinimap();
+        MakeCpuAndMinimap(lv);
 
         // start (count down)
-
+        StartCountDown();
 
     }
      
     void MakeMyBoard()
     {
-        _myBoard = new Board(_cellImageAsset, _cellPrefab, _uiManager, false);
+        _myBoard = new Board(_cellImageAsset, _cellPrefab, Board.BoardType.UserBoardInVsCpuMode);
 
         var tmpCellsinfo = MakeCellsInfo(Board.BoardHeight, Board.BoardWidth, Board.AmountOfMinesAtFirst);
 
         _myBoard.Make(tmpCellsinfo);
 
-
-        _uiManager.InitializeUI(Board.AmountOfMinesAtFirst);
-
-
         _addLines = new LinesAdder(Board.BoardWidth, Board.BoardHeight);
 
-
-        // TODO: è„êîçsÇÃÉZÉãÇãÛÇØÇÈ
-        for (int i = 0; i < _amountOfInitOpeningLines; i++)
+        for (int i = 0; i < AmountOfInitOpeningLines; i++)
         {
             for (int j = 0; j < Board.BoardWidth; j++)
             {
@@ -179,8 +289,24 @@ public class VsCpuManager : MonoBehaviour
         return dst;
     }
 
-    void MakeCpuAndMinimap()
+    void MakeCpuAndMinimap(int level)
     {
+        // CpuController.
+        _cpu.Initialize(level, _cellImageAsset, _cellPrefab);
 
+
+    }
+
+    void StartCountDown()
+    {
+        _startCountDown = true;
+    }
+
+    public static int CalcDamage(ref int totalInflictedDamage, int totalErasedCellAmount)
+    {
+        var damage = ((totalErasedCellAmount - totalInflictedDamage) / 10) * 10;
+        damage = Mathf.Min(damage, MAX_ADDED_LINES_NUM * 10);
+        totalInflictedDamage += damage;
+        return damage;
     }
 }

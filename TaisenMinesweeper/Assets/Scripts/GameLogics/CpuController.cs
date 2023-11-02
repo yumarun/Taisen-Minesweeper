@@ -9,6 +9,15 @@ public class CpuController : MonoBehaviour
 
     Board _board;
 
+    CellImageAsset _cellImageAsset;
+    GameObject _cellPrefab;
+
+    LinesAdder _addLines;
+    int _level;
+
+    int _amountOfTotalOpenedCellsFromClick;
+    int _amountOfTotalInflictedDamageToUser;
+
     void Start()
     {
         _initialized = false;   
@@ -16,14 +25,18 @@ public class CpuController : MonoBehaviour
 
     
 
-    public void Iniialize(int level)
+    public void Initialize(int level, CellImageAsset cellImageAsset, GameObject cellPrefab)
     {
-        //    
-
+        _level = level;
+        _cellImageAsset = cellImageAsset;
+        _cellPrefab = cellPrefab;
+        MakeBoard();
+        _amountOfTotalOpenedCellsFromClick = 0;
+        _amountOfTotalInflictedDamageToUser = 0;
         _initialized = true;
     }
 
-    public void Run()
+    public void StartRunning()
     {
         if (!_initialized)
         {
@@ -31,21 +44,28 @@ public class CpuController : MonoBehaviour
             return;
         }
 
-        MakeBoard();
 
         _running = true;
     }
 
-    public void Process() // ï‘ÇËílÇÕvoidÇ∂Ç·Ç»Ç≠ïœÇ¶ÇÈ
+    public bool Process() // ï‘ÇËílÇÕvoidÇ∂Ç·Ç»Ç≠ïœÇ¶ÇÈ
     {
+        var youLost = false;
+
         if (!_running)
         {
             Debug.LogError("CPU isn't running and can't process.");
-            return;
+            return youLost;
         }
+
+        Debug.Log("Runnning!");
+
+
+
+        return youLost;
     }
 
-    public void UpdateWithOpponentState()
+    public void UpdateWithOpponentState() // à¯êîí«â¡
     {
         if (!_running)
         {
@@ -54,8 +74,97 @@ public class CpuController : MonoBehaviour
         }
     }
 
+    public int GetInfo()
+    {
+        var damageToUser = VsCpuManager.CalcDamage(ref _amountOfTotalInflictedDamageToUser, 
+            _amountOfTotalOpenedCellsFromClick);
+        return damageToUser;
+    }
+
     void MakeBoard()
     {
+        _board = new Board(_cellImageAsset, _cellPrefab, Board.BoardType.CPUBoardInVsCpuMode);
 
+        var tmpCellsinfo = MakeCellsInfo(Board.BoardHeight, Board.BoardWidth, Board.AmountOfMinesAtFirst);
+
+        _board.Make(tmpCellsinfo);
+
+
+
+        _addLines = new LinesAdder(Board.BoardWidth, Board.BoardHeight);
+
+
+        for (int i = 0; i < VsCpuManager.AmountOfInitOpeningLines; i++)
+        {
+            for (int j = 0; j < Board.BoardWidth; j++)
+            {
+
+                _board.TryOpenCell(Board.BoardHeight - i - 1, j, false);
+            }
+        }
+
+        _board.CountAndSetAmountOfAlreadyOpenedCellsAndMines();
+    }
+
+    CellInfo[,] MakeCellsInfo(int boardHeight, int boardWidth, int AmountOfMines)
+    {
+        var dst = new CellInfo[boardHeight, boardWidth];
+        for (int i = 0; i < boardHeight; i++)
+        {
+            for (int j = 0; j < boardWidth; j++)
+            {
+                dst[i, j] = new CellInfo();
+
+            }
+        }
+
+        List<int> minePoss = new List<int>();
+        while (minePoss.Count < AmountOfMines)
+        {
+            int val = UnityEngine.Random.Range(0, boardHeight * boardWidth - 1);
+            if (!minePoss.Contains(val))
+            {
+                minePoss.Add(val);
+            }
+        }
+
+        foreach (var val in minePoss)
+        {
+            dst[val / boardWidth, val % boardWidth].WrittenValue = -1;
+        }
+
+        int[] dx = new int[] { -1, -1, -1, 0, 0, 1, 1, 1 };
+        int[] dy = new int[] { -1, 0, 1, -1, 1, -1, 0, 1 };
+
+        for (int i = 0; i < boardHeight; i++)
+        {
+            for (int j = 0; j < boardWidth; j++)
+            {
+                if (dst[i, j].WrittenValue == -1) // îöíeÇ»ÇÁcontinue
+                {
+                    continue;
+                }
+
+                int mineCount = 0;
+                for (int k = 0; k < 8; k++)
+                {
+                    int ny = i + dy[k];
+                    int nx = j + dx[k];
+                    if (nx < 0 || boardWidth <= nx || ny < 0 || boardHeight <= ny)
+                    {
+                        continue;
+                    }
+
+                    if (dst[ny, nx].WrittenValue == -1)
+                    {
+                        mineCount++;
+                    }
+                }
+                dst[i, j].WrittenValue = mineCount;
+            }
+        }
+
+
+        return dst;
     }
 }
