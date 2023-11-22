@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class VsCpuManager : MonoBehaviour
 {
@@ -378,5 +379,10 @@ public class VsCpuManager : MonoBehaviour
 
         _opponentSelectingPanel.SetActive(true);
         _battleScenePanel.SetActive(false);
+    }
+
+    public void BackToTopScene()
+    {
+        SceneManager.LoadScene("Start");
     }
 }
