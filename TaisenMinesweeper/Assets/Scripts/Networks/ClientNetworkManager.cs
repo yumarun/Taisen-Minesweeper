@@ -1,18 +1,18 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using UnityEngine;
 using UnityEngine.Events;
-using WebSocketSharp;
+//using WebSocketSharp;
 
 public class ClientNetworkManager: MonoBehaviour 
 {
     UnityEvent _onMatchingFinished;
     [SerializeField] GameManager _gameManager;
 
-    static WebSocket _webSocket;
+    //static WebSocketSharp.WebSocket _webSocket;
+    static NativeWebSocket.WebSocket _webSocket;
     string _opponentIpAddr = "";
     int _nowBattlingMsgNum = 0;
 
@@ -24,7 +24,7 @@ public class ClientNetworkManager: MonoBehaviour
         {
             url = "ws://" + sr.ReadToEnd() + "/ws";
         }
-        _webSocket = new WebSocket(url);
+        _webSocket = new NativeWebSocket.WebSocket(url);
         _webSocket.OnOpen += OnOpen;
         _webSocket.OnMessage += OnMessage;
         _webSocket.Connect();
@@ -33,15 +33,17 @@ public class ClientNetworkManager: MonoBehaviour
         _onMatchingFinished.AddListener(_gameManager.OnMatchDecided);
     }
 
-    void OnOpen(object sender, EventArgs e)
+    void OnOpen()
     {
         Debug.Log("Connected to server...");
     }
 
-    void OnMessage(object sender, MessageEventArgs e)
+    void OnMessage(byte[] bytes)
     {
-        Debug.Log("WebSocket message received: " + e.Data);
-        string[] msgsp = e.Data.Split('\n');
+        var bytes_str = System.Text.Encoding.UTF8.GetString(bytes);
+
+        Debug.Log("WebSocket message received: " + bytes_str);
+        string[] msgsp = bytes_str.Split('\n');
 
         if (msgsp.Length == 1)
         {
@@ -93,7 +95,7 @@ public class ClientNetworkManager: MonoBehaviour
         var msg = new MatchingPhaseMessageToServer("Taro", "123");
         string json = JsonUtility.ToJson(msg);
 
-        _webSocket.Send("matching\n" + json);
+        _webSocket.SendText("matching\n" + json);
     }
 
     public void SendBoardInfo(int[] board)
@@ -102,7 +104,7 @@ public class ClientNetworkManager: MonoBehaviour
         var msg = new BattlingPhaseMessageToServer(board, false, false, _nowBattlingMsgNum++, amountOfOpenedCells, _opponentIpAddr);
         string json = JsonUtility.ToJson(msg);
 
-        _webSocket.Send("battling\n" + json);
+        _webSocket.SendText("battling\n" + json);
     }
 
     [Serializable]
@@ -174,14 +176,25 @@ public class ClientNetworkManager: MonoBehaviour
             var msg = new BattlingPhaseMessageToServer(new int[0], false, true, -1, -1, "-1");
             string json = JsonUtility.ToJson(msg);
 
-            _webSocket.Send("battling\n" + json);
+            _webSocket.SendText("battling\n" + json);
         }
         else
         {
             var msg = new BattlingPhaseMessageToServer(new int[0], true, false, -1, -1, "-1");
             string json = JsonUtility.ToJson(msg);
 
-            _webSocket.Send("battling\n" + json);
+            _webSocket.SendText("battling\n" + json);
         }
+    }
+
+    
+    void Update()
+    {
+#if !UNITY_WEBGL || UNITY_EDITOR
+        if (_webSocket != null)
+        {
+            _webSocket.DispatchMessageQueue();
+        }
+#endif
     }
 }
