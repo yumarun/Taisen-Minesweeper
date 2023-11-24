@@ -35,7 +35,8 @@ var clientMsgChan = make(chan ClientMessage)
 
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
-		return true
+		origin := r.Header.Get("Origin")
+		return origin == "https://taisen-minesweeper-webglver.web.app"
 	},
 }
 
@@ -137,16 +138,11 @@ func updateUserState(ipAddr string, state string) {
 
 func main() {
 	fmt.Println("server start...")
-	// http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-	// 	fmt.Fprintf(w, "welcome to my website!")
-	// })
-
 	http.HandleFunc("/ws", clientMessageHandler)
-	// http.HandleFunc("/ws2", echo)
 
 	go echoAllMessage()
 
-	if err := http.ListenAndServe(":8080", nil); err != nil {
+	if err := http.ListenAndServeTLS(":8080", "/etc/letsencrypt/archive/tmserver.yumarun.net/fullchain1.pem", "/etc/letsencrypt/archive/tmserver.yumarun.net/privkey1.pem", nil); err != nil {
 		log.Fatal("ListenANDServe: ", err)
 	}
 }

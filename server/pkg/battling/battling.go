@@ -194,6 +194,9 @@ func sendOpponentCondition(opponentCond clientCondition, myConn *websocket.Conn)
 func calculateDamegeToInflictToOpponent(totalDamageInflictedToOpp int, totalNumOfOpenedCells int) int {
 	damage := ((totalNumOfOpenedCells - totalDamageInflictedToOpp) / 10) * 10
 	damage = Min4int(damage, MAX_INFLICTED_DAMAGE)
+
+	fmt.Println("199 ", totalDamageInflictedToOpp, totalNumOfOpenedCells, damage)
+
 	return damage
 }
 
