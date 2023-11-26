@@ -292,11 +292,6 @@ public class CpuBehaveDecider
         return (openableCells, checkableCells);
     }
 
-    bool InBoard(int y, int x)
-    {
-        return (0 <= y && y < Board.BoardHeight && 0 <= x && x < Board.BoardWidth);
-    }
-
     SortedSet<(int, int)> ChangeSet1(SortedSet<int> st)
     {
         var ret = new SortedSet<(int, int)>();

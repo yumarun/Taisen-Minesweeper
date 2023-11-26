@@ -38,7 +38,7 @@ public class GameManager : MonoBehaviour
     // í èÌ: 0, 
     // èIóπ & won: 1,
     // èIóπ & los: 2t
-    int _onGameFinished = 0; 
+    int _onGameFinished;
     void Update()
     {
         if (_matching)
@@ -79,7 +79,6 @@ public class GameManager : MonoBehaviour
             {
                 win = false;    
             }
-            _onGameFinished = 0;
 
             if (win)
             {
@@ -96,6 +95,7 @@ public class GameManager : MonoBehaviour
 
     public void OnPlayButtonClicked()
     {
+        _onGameFinished = 0;
         _client.Init();
         MatchStart();
         _startPanel.SetActive(false);

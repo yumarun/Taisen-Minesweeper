@@ -4,14 +4,12 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.Events;
-//using WebSocketSharp;
 
 public class ClientNetworkManager: MonoBehaviour 
 {
     UnityEvent _onMatchingFinished;
     [SerializeField] GameManager _gameManager;
 
-    //static WebSocketSharp.WebSocket _webSocket;
     static NativeWebSocket.WebSocket _webSocket;
     string _opponentIpAddr = "";
     int _nowBattlingMsgNum = 0;
@@ -19,18 +17,14 @@ public class ClientNetworkManager: MonoBehaviour
 
     public void Init()
     {
-        string url = "";
-        using (var sr = new StreamReader("Assets/Scripts/ServerIpAddress.txt"))
-        {
-            url = "ws://" + sr.ReadToEnd() + "/ws";
-        }
+        string url = "wss://tmserver.yumarun.net:8080/ws";
         _webSocket = new NativeWebSocket.WebSocket(url);
         _webSocket.OnOpen += OnOpen;
         _webSocket.OnMessage += OnMessage;
         _webSocket.Connect();
-
         _onMatchingFinished = new UnityEvent();
         _onMatchingFinished.AddListener(_gameManager.OnMatchDecided);
+
     }
 
     void OnOpen()
@@ -77,7 +71,6 @@ public class ClientNetworkManager: MonoBehaviour
             }
             else if (msgsp[0] == "battling")
             {
-                // êÊÇ…jsonÇâêÕ
                 var msg = JsonUtility.FromJson<BattlingPhaseMessageFromServer>(msgsp[1]);
 
                 _gameManager.OnOpponentBoardSent(msg.LatestBoard, msg.LatestAttackPoint / 10);

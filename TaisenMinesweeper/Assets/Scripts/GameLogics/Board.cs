@@ -303,7 +303,6 @@ public class Board
 
     bool IsNowMeetingClearConditions()
     {
-        //Debug.Log($"from c: {_amountOfOpenedCellsFromClick}, not from c: {_amountOfAutomaticallyOpenedCells}, already: {_amountOfAlreadyOpenedCells}");
 
         if (_amountOfOpenedCellsFromClick + _amountOfAutomaticallyOpenedCells + _amountOfAlreadyOpenedCells 
             == BoardHeight * BoardWidth - _amountOfMines) 
