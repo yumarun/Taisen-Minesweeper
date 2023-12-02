@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"yumarun/TM_matching/pkg/battling"
+	"yumarun/TM_matching/pkg/frimatch"
 	"yumarun/TM_matching/pkg/matching"
 
 	"github.com/gorilla/websocket"
@@ -35,6 +36,7 @@ var clientMsgChan = make(chan ClientMessage)
 
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
+		return true
 		origin := r.Header.Get("Origin")
 		return origin == "https://taisen-minesweeper-webglver.web.app"
 	},
@@ -92,6 +94,19 @@ func echoAllMessage() {
 			// userのstateを更新
 			updateUserState(ipAddr, "matching")
 			matching.Process(user.uid, ipAddr, user.conn)
+		} else if arr[0] == "friendmatching" {
+
+			// mapに登録されているか確認, なかったら登録
+			_, isExistingUser := users[ipAddr]
+			if !isExistingUser {
+				uid := len(users)
+				user := userInfo{uid: uid, state: "Taro", conn: client_str.conn}
+				users[ipAddr] = user
+			}
+
+			// userのstateを更新
+			updateUserState(ipAddr, "waitingfriend")
+			frimatch.Process(client_str.conn, arr[1])
 		} else if arr[0] == "battling" {
 			updateUserState(ipAddr, "battling")
 			battling.Process(arr[1], client_str.conn)
@@ -121,6 +136,10 @@ func onClientDisconnected(ipAddr string) {
 		delete(users, ipAddr)
 		battling.OnClientDisconnected(ipAddr)
 		log.Println(ipAddr, " disconnected during battling.")
+	} else if users[ipAddr].state == "waitingfriend" {
+		delete(users, ipAddr)
+		frimatch.OnClientDisconnected(ipAddr)
+		log.Println(ipAddr, " disconnected during waiting friend.")
 	}
 
 }
@@ -139,9 +158,7 @@ func updateUserState(ipAddr string, state string) {
 func main() {
 	fmt.Println("server start...")
 	http.HandleFunc("/ws", clientMessageHandler)
-
 	go echoAllMessage()
-
 	if err := http.ListenAndServeTLS(":8080", "/etc/letsencrypt/archive/tmserver.yumarun.net/fullchain1.pem", "/etc/letsencrypt/archive/tmserver.yumarun.net/privkey1.pem", nil); err != nil {
 		log.Fatal("ListenANDServe: ", err)
 	}
