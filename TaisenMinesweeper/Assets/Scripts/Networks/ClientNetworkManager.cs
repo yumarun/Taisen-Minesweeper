@@ -69,6 +69,17 @@ public class ClientNetworkManager: MonoBehaviour
                 Debug.Log($"Matchi finished. OppenentAddr: {_opponentIpAddr}");
                 _onMatchingFinished.Invoke();
             }
+            else if (msgsp[0] == "friendmatchok")
+            {
+                _opponentIpAddr = msgsp[1];
+                Debug.Log($"friend matchi finished. OppenentAddr: {_opponentIpAddr}");
+                _onMatchingFinished.Invoke();
+            }
+            else if (msgsp[0] == "makeroomfinished")
+            {
+                Debug.Log($"make room succeeded. password: {msgsp[1]}");
+                _gameManager.OnFriendMakeRoomSucceeded(msgsp[1]);
+            }
             else if (msgsp[0] == "battling")
             {
                 var msg = JsonUtility.FromJson<BattlingPhaseMessageFromServer>(msgsp[1]);
@@ -89,6 +100,25 @@ public class ClientNetworkManager: MonoBehaviour
         string json = JsonUtility.ToJson(msg);
 
         _webSocket.SendText("matching\n" + json);
+    }
+
+    public void RequestFriendMatching()
+    {
+        var msg = new JsonOnFriendMatchRequest("makeroom", "_");
+        string json = JsonUtility.ToJson(msg);
+
+        _webSocket.SendText("friendmatching\n" + json);
+    }
+
+    public void RequestJoinFriendsRoiom(string password)
+    {
+        var msg = new JsonOnFriendMatchRequest("joinroom", password);
+        string json = JsonUtility.ToJson(msg);
+
+        Debug.Log(json == null);
+        Debug.Log(_webSocket == null);
+
+        _webSocket.SendText("friendmatching\n" + json);
     }
 
     public void SendBoardInfo(int[] board)
@@ -150,6 +180,18 @@ public class ClientNetworkManager: MonoBehaviour
             LatestMsgNum = msgNum;
             LatestAttackPoint = ap;
             OpponentAddr = opponentIp;
+        }
+    }
+
+    [Serializable]
+    public class JsonOnFriendMatchRequest
+    {
+        public string Call;
+        public string Arg;
+        public JsonOnFriendMatchRequest(string call, string arg)
+        {
+            Call = call;
+            Arg = arg;
         }
     }
 

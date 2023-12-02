@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
@@ -35,6 +37,24 @@ public class GameManager : MonoBehaviour
 
     bool _onMatchDecided = false;
 
+
+    bool _friendMatching = false;
+    [SerializeField]
+    GameObject _friendMatchPanel;
+
+    [SerializeField]
+    TMP_InputField _joinFriendRoomInputField;
+
+    string _friendRoomPassword = "";
+    bool _OnFriendRoomMakeFinished = false;
+    [SerializeField]
+    GameObject _friendRoomPasswordPanel;
+    [SerializeField]
+    TMP_InputField _friendRoomPasswordInputField;
+
+    bool _joinFriendsRoom = false;
+    float _joinFriendsRoomElapsedTime = 0;
+
     // ’Êí: 0, 
     // I—¹ & won: 1,
     // I—¹ & los: 2t
@@ -48,6 +68,19 @@ public class GameManager : MonoBehaviour
             {
                 _matchingElapsedTime = 0;
                 _client.RequestMatching();
+            }
+        }
+
+        if (_friendMatching)
+        {
+            if (_friendRoomPassword == "")
+            {
+                _matchingElapsedTime += Time.deltaTime;
+                if (_matchingElapsedTime > MATCHING_INTERVAL)
+                {
+                    _matchingElapsedTime = 0;
+                    _client.RequestFriendMatching();
+                }
             }
         }
 
@@ -91,6 +124,23 @@ public class GameManager : MonoBehaviour
             _panelOnGameFinished.SetActive(true);
 
         }
+
+        if (_OnFriendRoomMakeFinished)
+        {
+            _OnFriendRoomMakeFinished = false;
+            _friendRoomPasswordInputField.text = _friendRoomPassword;
+            _friendRoomPasswordPanel.SetActive(true);
+        }
+
+        if (_joinFriendsRoom)
+        {
+            _joinFriendsRoomElapsedTime += Time.deltaTime;
+            if (_joinFriendsRoomElapsedTime > MATCHING_INTERVAL )
+            {
+                _joinFriendsRoomElapsedTime = 0;
+                _client.RequestJoinFriendsRoiom(_joinFriendRoomInputField.text);
+            }
+        }
     }
 
     public void OnPlayButtonClicked()
@@ -102,17 +152,32 @@ public class GameManager : MonoBehaviour
         _waitingOpponentPanel.SetActive(true);
     }
 
+    public void OnMakeRoomButtonClicked()
+    {
+        _onGameFinished = 0;
+        _client.Init();
+        FriendMatchStart();
+        _startPanel.SetActive(false);
+        _waitingOpponentPanel.SetActive(true);
+    }
+
     void MatchStart()
     {
         _matching = true;
+    }
+
+    void FriendMatchStart()
+    {
+        _friendMatching = true;
     }
 
     public void OnMatchDecided()
     {
         _onMatchDecided = true;
         InitGame();
-
+        _friendMatching = false;
         _matching = false;
+        _joinFriendsRoom = false;
         _battling = true;
     }
 
@@ -159,4 +224,33 @@ public class GameManager : MonoBehaviour
     {
         SceneManager.LoadScene("VsCPU");
     }
+
+    public void OnFriendMatchButtonClicked()
+    {
+        _friendMatchPanel.SetActive(true);
+    }
+
+    public void OnFriendBackButtonClicked()
+    {
+        _friendRoomPasswordPanel.SetActive(false);
+        _friendMatchPanel.SetActive(false);
+    }
+
+    public void OnFriendMakeRoomSucceeded(string password)
+    {
+        _friendRoomPassword = password;
+        _OnFriendRoomMakeFinished = true;
+    }
+
+    public void OnJoinRoomButtonClicked()
+    {
+
+        _onGameFinished = 0;
+        _client.Init();
+        _startPanel.SetActive(false);
+        _waitingOpponentPanel.SetActive(true);
+        _joinFriendsRoom = true;
+        
+    }
+
 }
