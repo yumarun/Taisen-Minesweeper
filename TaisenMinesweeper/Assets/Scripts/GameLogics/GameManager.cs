@@ -207,11 +207,17 @@ public class GameManager : MonoBehaviour
         _battling = false;
         if (youWin)
         {
-            _onGameFinished = 1;
+            if (_onGameFinished == 0)
+            {
+                _onGameFinished = 1;
+            }
         }
         else
         {
-            _onGameFinished = 2;
+            if (_onGameFinished == 0)
+            {
+                _onGameFinished = 2;
+            }
         }
     }
 
