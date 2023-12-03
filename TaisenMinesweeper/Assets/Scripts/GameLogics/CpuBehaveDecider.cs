@@ -13,13 +13,35 @@ public class CpuBehaveDecider
     readonly int[] _dx = new int[] { -1, 0, 1, -1, 1, -1, 0, 1 };
     readonly int[] _dy = new int[] { 1, 1, 1, 0, 0, -1, -1, -1 };
 
+    (int, int) _tmpCheckableCell = (-1, -1);
+
 
     public CpuBehaveDecider(int level)
     {
         _level = level;
         if (_level == 1)
         {
+            _durationBetweenAttack = 7f;
+        }
+        else if (_level == 2)
+        {
+            _durationBetweenAttack = 4f;
+        }
+        else if (_level == 3)
+        {
+            _durationBetweenAttack = 2f;
+        }
+        else if (_level == 4)
+        {
+            _durationBetweenAttack = 1f;
+        }
+        else if (_level == 5)
+        {
             _durationBetweenAttack = 0.5f;
+        }
+        else if (_level == 6)
+        {
+            _durationBetweenAttack = 0.3f;
         }
     }
 
@@ -44,7 +66,10 @@ public class CpuBehaveDecider
 
             var (openableCells, checkableCells) = Calclate(cpuInfo);
 
-
+            if (_tmpCheckableCell.Item1 != -1)
+            {
+                checkableCells[_tmpCheckableCell.Item1, _tmpCheckableCell.Item2] = true;
+            }
 
 
             bool existingOpenableCellsOrCheckableCells = false;
@@ -69,22 +94,35 @@ public class CpuBehaveDecider
                 {
                     if (checkableCells[y, x])
                     {
+
                         existingOpenableCellsOrCheckableCells = true;
+                        if (y == _tmpCheckableCell.Item1 && x == _tmpCheckableCell.Item2)
+                        {
+                            _tmpCheckableCell = (-1, -1);
+                        }
                         return (1, x, y);
                     }
                 }
             }
 
+            
+
             if (!existingOpenableCellsOrCheckableCells)
             {
                 // select a unopened cell from the board.
+                Debug.Log("!existingOpenableCellsOrCheckableCells");
                 for (int y = Board.BoardHeight - 1; y >= 0; y--)
                 {
                     for (int x = 0; x < Board.BoardWidth; x++)
                     {
                         
-                        if (!cpuInfo[y, x].IsOpend && !cpuInfo[y, x].IsSafeBomb)
+                        if (!cpuInfo[y, x].IsOpend && !cpuInfo[y, x].IsSafeBomb && !cpuInfo[y, x].IsFlagged)
                         {
+                            Debug.Log($"find unopened cell: {x}, {y}");
+                            if (cpuInfo[y, x].WrittenValue == -1)
+                            {
+                                _tmpCheckableCell = (y, x);
+                            }
                             return (0, x, y);
                         }
                     }

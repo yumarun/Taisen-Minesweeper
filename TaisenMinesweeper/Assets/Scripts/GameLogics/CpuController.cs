@@ -13,7 +13,6 @@ public class CpuController : MonoBehaviour
     GameObject _cellPrefab;
 
     LinesAdder _addLines;
-    int _level;
 
     int _amountOfTotalOpenedCellsFromClick;
     int _amountOfTotalInflictedDamageToUser;
@@ -29,7 +28,6 @@ public class CpuController : MonoBehaviour
 
     public void Initialize(int level, CellImageAsset cellImageAsset, GameObject cellPrefab)
     {
-        _level = level;
         _cellImageAsset = cellImageAsset;
         _cellPrefab = cellPrefab;
         MakeBoard();
@@ -105,7 +103,6 @@ public class CpuController : MonoBehaviour
     public int GetInfo()
     {
 
-        //Debug.Log($"inf: {_amountOfTotalInflictedDamageToUser}, tot: {_amountOfTotalOpenedCellsFromClick}");
         var damageToUser = VsCpuManager.CalcDamage(ref _amountOfTotalInflictedDamageToUser, 
             _amountOfTotalOpenedCellsFromClick);
         return damageToUser / 10;
@@ -119,20 +116,15 @@ public class CpuController : MonoBehaviour
 
         _board.Make(tmpCellsinfo);
 
-
-
         _addLines = new LinesAdder(Board.BoardWidth, Board.BoardHeight, Board.BoardType.CPUBoardInVsCpuMode);
-
 
         for (int i = 0; i < VsCpuManager.AmountOfInitOpeningLines; i++)
         {
             for (int j = 0; j < Board.BoardWidth; j++)
             {
-
                 _board.TryOpenCell(Board.BoardHeight - i - 1, j, false);
             }
         }
-
         _board.CountAndSetAmountOfAlreadyOpenedCellsAndMines();
     }
 

@@ -15,7 +15,6 @@ public class VsCpuManager : MonoBehaviour
     [SerializeField]
     GameObject _battleScenePanel;
 
-    int _cpuLevel;
     [SerializeField]
     TextMeshProUGUI _cpuLevelText;
 
@@ -157,7 +156,6 @@ public class VsCpuManager : MonoBehaviour
                 
 
                 var cpuinfo = _cpu.GetInfo();
-                //Debug.Log($"cpuinfo: {cpuinfo}");
                 UpdateUserBoard(cpuinfo);
                 var myInfo = GetInfo();
                 _cpu.UpdateWithOpponentState(myInfo / 10);
@@ -209,7 +207,6 @@ public class VsCpuManager : MonoBehaviour
     {
         WinLose = -1;
         _totalInflictedDamageToCpu = 0;
-        _cpuLevel = lv;
         _opponentSelectingPanel.SetActive(false);
         _battleScenePanel.SetActive(true);
         _cpuLevelText.text = $"Level: {lv}";
