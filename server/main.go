@@ -36,7 +36,6 @@ var clientMsgChan = make(chan ClientMessage)
 
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
-		return true
 		origin := r.Header.Get("Origin")
 		return origin == "https://taisen-minesweeper-webglver.web.app"
 	},

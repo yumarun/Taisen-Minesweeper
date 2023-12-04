@@ -1,0 +1,287 @@
+server start...
+server start...
+server start...
+server start...
+server start...
+server start...
+server start...
+Process() in frimatch.go start.
+rmId:  vKTjUuv2
+user state:  waitingfriend
+server start...
+Process() in frimatch.go start.
+if joinroom.
+len:  1  msg.Arg:  vKTjUuv2
+end if joinroom.
+user state:  waitingfriend
+initMatch is called
+199  0 0 0
+addr:  133.10.250.91:55327  uindex:  0
+user state:  battling
+199  0 7 0
+addr:  133.10.250.91:55327  uindex:  0
+user state:  battling
+199  0 0 0
+addr:  133.10.250.91:55326  uindex:  1
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":1,"LatestAttackPoint":0,"OpponentAddr":"133.10.250.91:55327"}
+user state:  battling
+199  0 3 0
+addr:  133.10.250.91:55326  uindex:  1
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":1,"LatestAttackPoint":0,"OpponentAddr":"133.10.250.91:55327"}
+user state:  battling
+199  0 11 10
+addr:  133.10.250.91:55326  uindex:  1
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":1,"LatestAttackPoint":0,"OpponentAddr":"133.10.250.91:55327"}
+user state:  battling
+199  0 7 0
+addr:  133.10.250.91:55327  uindex:  0
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":2,"LatestAttackPoint":10,"OpponentAddr":"133.10.250.91:55326"}
+user state:  battling
+199  0 0 0
+addr:  133.10.250.91:55327  uindex:  0
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":2,"LatestAttackPoint":0,"OpponentAddr":"133.10.250.91:55326"}
+user state:  battling
+199  0 7 0
+addr:  133.10.250.91:55327  uindex:  0
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":2,"LatestAttackPoint":0,"OpponentAddr":"133.10.250.91:55326"}
+user state:  battling
+199  10 12 0
+addr:  133.10.250.91:55326  uindex:  1
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":4,"LatestAttackPoint":0,"OpponentAddr":"133.10.250.91:55327"}
+user state:  battling
+199  10 18 0
+addr:  133.10.250.91:55326  uindex:  1
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":4,"LatestAttackPoint":0,"OpponentAddr":"133.10.250.91:55327"}
+user state:  battling
+server start...
+199  10 22 10
+addr:  133.10.250.91:55326  uindex:  1
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":4,"LatestAttackPoint":0,"OpponentAddr":"133.10.250.91:55327"}
+user state:  battling
+199  10 24 10
+addr:  133.10.250.91:55326  uindex:  1
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":4,"LatestAttackPoint":0,"OpponentAddr":"133.10.250.91:55327"}
+user state:  battling
+199  0 34 30
+addr:  133.10.250.91:55327  uindex:  0
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":6,"LatestAttackPoint":10,"OpponentAddr":"133.10.250.91:55326"}
+user state:  battling
+199  20 24 0
+addr:  133.10.250.91:55326  uindex:  1
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":5,"LatestAttackPoint":30,"OpponentAddr":"133.10.250.91:55327"}
+user state:  battling
+199  20 0 -20
+addr:  133.10.250.91:55326  uindex:  1
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":5,"LatestAttackPoint":0,"OpponentAddr":"133.10.250.91:55327"}
+user state:  battling
+199  20 0 -20
+addr:  133.10.250.91:55326  uindex:  1
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":5,"LatestAttackPoint":0,"OpponentAddr":"133.10.250.91:55327"}
+user state:  battling
+199  30 0 -30
+addr:  133.10.250.91:55327  uindex:  0
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":9,"LatestAttackPoint":-20,"OpponentAddr":"133.10.250.91:55326"}
+user state:  battling
+199  30 0 -30
+addr:  133.10.250.91:55327  uindex:  0
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":9,"LatestAttackPoint":0,"OpponentAddr":"133.10.250.91:55326"}
+user state:  battling
+199  0 0 0
+addr:  133.10.250.91:55326  uindex:  1
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":7,"LatestAttackPoint":-30,"OpponentAddr":"133.10.250.91:55327"}
+user state:  battling
+199  0 14 10
+addr:  133.10.250.91:55326  uindex:  1
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":7,"LatestAttackPoint":0,"OpponentAddr":"133.10.250.91:55327"}
+user state:  battling
+199  0 14 10
+addr:  133.10.250.91:55326  uindex:  1
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":7,"LatestAttackPoint":0,"OpponentAddr":"133.10.250.91:55327"}
+user state:  battling
+199  0 14 10
+addr:  133.10.250.91:55326  uindex:  1
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":7,"LatestAttackPoint":0,"OpponentAddr":"133.10.250.91:55327"}
+user state:  battling
+199  0 14 10
+addr:  133.10.250.91:55326  uindex:  1
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":7,"LatestAttackPoint":0,"OpponentAddr":"133.10.250.91:55327"}
+user state:  battling
+199  0 20 20
+addr:  133.10.250.91:55326  uindex:  1
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":7,"LatestAttackPoint":0,"OpponentAddr":"133.10.250.91:55327"}
+user state:  battling
+199  0 24 20
+addr:  133.10.250.91:55326  uindex:  1
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":7,"LatestAttackPoint":0,"OpponentAddr":"133.10.250.91:55327"}
+user state:  battling
+199  0 31 30
+addr:  133.10.250.91:55326  uindex:  1
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":7,"LatestAttackPoint":0,"OpponentAddr":"133.10.250.91:55327"}
+user state:  battling
+199  0 31 30
+addr:  133.10.250.91:55326  uindex:  1
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":7,"LatestAttackPoint":0,"OpponentAddr":"133.10.250.91:55327"}
+user state:  battling
+199  0 35 30
+addr:  133.10.250.91:55326  uindex:  1
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":7,"LatestAttackPoint":0,"OpponentAddr":"133.10.250.91:55327"}
+user state:  battling
+199  0 42 40
+addr:  133.10.250.91:55326  uindex:  1
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":7,"LatestAttackPoint":0,"OpponentAddr":"133.10.250.91:55327"}
+user state:  battling
+server start...
+199  0 48 40
+addr:  133.10.250.91:55326  uindex:  1
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":7,"LatestAttackPoint":0,"OpponentAddr":"133.10.250.91:55327"}
+user state:  battling
+user state:  battling
+server start...
+server start...
+server start...
+server start...
+server start...
+server start...
+Process() in frimatch.go start.
+rmId:  UnKUdyiB
+user state:  waitingfriend
+user state:  matching
+user state:  matching
+ip:  133.10.250.91:55587  canceled match. 
+Process() in frimatch.go start.
+rmId:  CyAiI985
+user state:  waitingfriend
+Process() in frimatch.go start.
+if joinroom.
+join match failed
+end if joinroom.
+user state:  waitingfriend
+Process() in frimatch.go start.
+if joinroom.
+join match failed
+end if joinroom.
+user state:  waitingfriend
+Process() in frimatch.go start.
+if joinroom.
+join match failed
+end if joinroom.
+user state:  waitingfriend
+Process() in frimatch.go start.
+if joinroom.
+join match failed
+end if joinroom.
+user state:  waitingfriend
+Process() in frimatch.go start.
+if joinroom.
+join match failed
+end if joinroom.
+user state:  waitingfriend
+Process() in frimatch.go start.
+if joinroom.
+join match failed
+end if joinroom.
+user state:  waitingfriend
+Process() in frimatch.go start.
+if joinroom.
+join match failed
+end if joinroom.
+user state:  waitingfriend
+Process() in frimatch.go start.
+if joinroom.
+join match failed
+end if joinroom.
+user state:  waitingfriend
+Process() in frimatch.go start.
+rmId:  JcuAPiUf
+user state:  waitingfriend
+Process() in frimatch.go start.
+if joinroom.
+len:  1  msg.Arg:  JcuAPiUf
+end if joinroom.
+user state:  waitingfriend
+initMatch is called
+199  0 0 0
+addr:  133.10.250.91:55610  uindex:  0
+user state:  battling
+199  0 1 0
+addr:  133.10.250.91:55608  uindex:  1
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":0,"LatestAttackPoint":0,"OpponentAddr":"133.10.250.91:55610"}
+user state:  battling
+199  0 14 10
+addr:  133.10.250.91:55608  uindex:  1
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":0,"LatestAttackPoint":0,"OpponentAddr":"133.10.250.91:55610"}
+user state:  battling
+199  0 4 0
+addr:  133.10.250.91:55610  uindex:  0
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":1,"LatestAttackPoint":10,"OpponentAddr":"133.10.250.91:55608"}
+user state:  battling
+199  0 3 0
+addr:  133.10.250.91:55610  uindex:  0
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":1,"LatestAttackPoint":0,"OpponentAddr":"133.10.250.91:55608"}
+user state:  battling
+199  0 10 10
+addr:  133.10.250.91:55610  uindex:  0
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":1,"LatestAttackPoint":0,"OpponentAddr":"133.10.250.91:55608"}
+user state:  battling
+199  0 22 20
+addr:  133.10.250.91:55610  uindex:  0
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":1,"LatestAttackPoint":0,"OpponentAddr":"133.10.250.91:55608"}
+user state:  battling
+199  0 27 20
+addr:  133.10.250.91:55610  uindex:  0
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":1,"LatestAttackPoint":0,"OpponentAddr":"133.10.250.91:55608"}
+user state:  battling
+199  0 28 20
+addr:  133.10.250.91:55610  uindex:  0
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":1,"LatestAttackPoint":0,"OpponentAddr":"133.10.250.91:55608"}
+user state:  battling
+199  10 15 0
+addr:  133.10.250.91:55608  uindex:  1
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":6,"LatestAttackPoint":20,"OpponentAddr":"133.10.250.91:55610"}
+user state:  battling
+199  10 0 -10
+addr:  133.10.250.91:55608  uindex:  1
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":6,"LatestAttackPoint":0,"OpponentAddr":"133.10.250.91:55610"}
+user state:  battling
+199  10 2 0
+addr:  133.10.250.91:55608  uindex:  1
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":6,"LatestAttackPoint":0,"OpponentAddr":"133.10.250.91:55610"}
+user state:  battling
+199  10 7 0
+addr:  133.10.250.91:55608  uindex:  1
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":6,"LatestAttackPoint":0,"OpponentAddr":"133.10.250.91:55610"}
+user state:  battling
+199  10 16 0
+addr:  133.10.250.91:55608  uindex:  1
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":6,"LatestAttackPoint":0,"OpponentAddr":"133.10.250.91:55610"}
+user state:  battling
+207
+207
+send win message err:  use of closed network connection
+user state:  
+server start...
+server start...
+Process() in frimatch.go start.
+rmId:  QRezsCUN
+user state:  waitingfriend
+Process() in frimatch.go start.
+rmId:  AwWktaux
+user state:  waitingfriend
+user state:  matching
+ip:  133.10.236.219:53773  canceled match. 
+user state:  matching
+ip:  118.241.171.103:55617  canceled match. 
+user state:  matching
+ip:  27.141.227.184:63107  canceled match. 
+Process() in frimatch.go start.
+rmId:  PKcyPBk3
+user state:  waitingfriend
+user state:  matching
+user state:  matching
+user state:  matching
+user state:  matching
+user state:  matching
+user state:  matching
+user state:  matching
+user state:  matching
+ip:  60.71.120.180:55937  canceled match. 
