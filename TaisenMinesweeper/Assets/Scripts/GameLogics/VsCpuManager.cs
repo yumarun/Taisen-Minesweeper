@@ -79,6 +79,14 @@ public class VsCpuManager : MonoBehaviour
     [SerializeField]
     GameObject _wonPanel;
 
+    bool _goAddLines = false;
+    float _elapsedTime4AddLinesDuration;
+
+    [SerializeField]
+    TextMeshProUGUI _addlinesText;
+
+    int _latestAddedLinesNum = 0;
+
     void Start()
     {
         
@@ -161,7 +169,23 @@ public class VsCpuManager : MonoBehaviour
                 _cpu.UpdateWithOpponentState(myInfo / 10);
             }
 
-            
+            if (_goAddLines)
+            {
+                if (!_addlinesText.gameObject.activeSelf)
+                {
+                    _addlinesText.gameObject.SetActive(true);
+                }
+                _elapsedTime4AddLinesDuration += Time.deltaTime;
+                float remainingTime = LinesAdder.DURATION_FROM_ADDLINES_CALL - _elapsedTime4AddLinesDuration;
+                _addlinesText.text = $"Until AddLines: {remainingTime.ToString("f2")}";
+                if (_elapsedTime4AddLinesDuration > LinesAdder.DURATION_FROM_ADDLINES_CALL)
+                {
+                    _elapsedTime4AddLinesDuration = 0;
+                    _goAddLines = false;
+                    _addLines.AddLines(ref _myBoard, _latestAddedLinesNum);
+                    _addlinesText.gameObject.SetActive(false);
+                }
+            }
 
         } // <-- _running
     }
@@ -210,6 +234,8 @@ public class VsCpuManager : MonoBehaviour
         _opponentSelectingPanel.SetActive(false);
         _battleScenePanel.SetActive(true);
         _cpuLevelText.text = $"Level: {lv}";
+        _addlinesText.gameObject.SetActive(false);
+        _elapsedTime4AddLinesDuration = 0f;
 
         // initialize timer
         _timer.ResetTimer();
@@ -333,7 +359,13 @@ public class VsCpuManager : MonoBehaviour
 
     void UpdateUserBoard(int cpuInfo)
     {
-        _addLines.AddLines(ref _myBoard, cpuInfo);
+        if (cpuInfo <= 0)
+        {
+            return;
+        }
+        _latestAddedLinesNum = cpuInfo;
+        Debug.Log($"cpuinfo: {cpuInfo}");
+        _goAddLines = true;
     }
     
     int GetInfo()

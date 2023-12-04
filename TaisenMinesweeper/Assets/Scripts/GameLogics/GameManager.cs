@@ -259,4 +259,9 @@ public class GameManager : MonoBehaviour
         
     }
 
+
+    public void GoRuleScene()
+    {
+        SceneManager.LoadScene("Rules");
+    }
 }

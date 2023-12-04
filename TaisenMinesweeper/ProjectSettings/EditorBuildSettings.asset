@@ -14,4 +14,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/VsCPU.unity
     guid: 150d1f416c30c7e4eb398c93a5cc9f25
+  - enabled: 1
+    path: Assets/Scenes/Rules.unity
+    guid: 781778a8f261cfb48a3bc5da1c09ce7a
   m_configObjects: {}
