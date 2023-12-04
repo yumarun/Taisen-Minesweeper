@@ -15,7 +15,7 @@ public class Board
 
     public static readonly int BoardHeight = 15;
     public static readonly int BoardWidth = 15;
-    public static readonly int AmountOfMinesAtFirst = 30;
+    public static readonly int AmountOfMinesAtFirst = 45;
 
 
     
