@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
+using System.Runtime.InteropServices;
 
 public class VsCpuManager : MonoBehaviour
 {
@@ -86,6 +87,13 @@ public class VsCpuManager : MonoBehaviour
     TextMeshProUGUI _addlinesText;
 
     int _latestAddedLinesNum = 0;
+
+#if !UNITY_EDITOR && UNITY_WEBGL
+    [DllImport("__Internal")]
+    private static extern string TweetFromUnity(string rawMessage, string[] tags);
+#endif
+
+    int _cpuLevel;
 
     void Start()
     {
@@ -236,6 +244,7 @@ public class VsCpuManager : MonoBehaviour
         _cpuLevelText.text = $"Level: {lv}";
         _addlinesText.gameObject.SetActive(false);
         _elapsedTime4AddLinesDuration = 0f;
+        _cpuLevel = lv;
 
         // initialize timer
         _timer.ResetTimer();
@@ -413,5 +422,12 @@ public class VsCpuManager : MonoBehaviour
     public void BackToTopScene()
     {
         SceneManager.LoadScene("Start");
+    }
+
+    public void Tweet()
+    {
+#if !UNITY_EDITOR && UNITY_WEBGL
+        TweetFromUnity($"I beat a level {_cpuLevel} cpu in {_timer.GetTime()} seconds! \n https://taisen-minesweeper-webglver.web.app/ \n", new string[] { "taisen-minesweeper", "minesweepe"});
+#endif
     }
 }

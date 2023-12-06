@@ -44,4 +44,8 @@ public class VsCpuTimer : MonoBehaviour
         TimerValue = 0;
     }
 
+    public string GetTime()
+    {
+        return _timerValue.ToString("f1");
+    }
 }
