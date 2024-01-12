@@ -1,7 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -55,10 +57,25 @@ public class GameManager : MonoBehaviour
     bool _joinFriendsRoom = false;
     float _joinFriendsRoomElapsedTime = 0;
 
+    GoogleAuthentification _googleAuth;
+
     // í èÌ: 0, 
     // èIóπ & won: 1,
     // èIóπ & los: 2t
     int _onGameFinished;
+
+    [SerializeField]
+    UserProfileManager _userProfileManager;
+
+
+    void Start()
+    {
+        if (UserProfileManager.IsProfileSet())
+        {
+            UserProfileManager.UnactiveateSpeechBubble();
+            UserProfileManager.SetNameAndRating();
+        }
+    }
     void Update()
     {
         if (_matching)
@@ -264,4 +281,55 @@ public class GameManager : MonoBehaviour
     {
         SceneManager.LoadScene("Rules");
     }
+
+
+    
+    void GetUserProfile(string token)
+    {
+        StartCoroutine(GetUserProfileAsync(token));
+    }
+
+    
+
+
+    IEnumerator GetUserProfileAsync(string token)
+    {
+        UnityWebRequest req = UnityWebRequest.Post("https://tmapiserver.yumarun.net:8080/api/NameAndRating/", token);
+        req.SetRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        yield return req.SendWebRequest();
+
+        if (req.error != null)
+        {
+            Debug.Log(req.error);
+        }
+
+        Debug.Log(req.downloadHandler.text);
+        var res = req.downloadHandler.text;
+        var ress = res.Split('\n');
+        if (ress[1] == "-1")
+        {
+            Debug.Log("not registered");
+            _userProfileManager.SetToken(token);
+            //Debug.Log($"313: {UserProfileManager.GetToken()}");
+            _userProfileManager.ActivateNameInputPanel();
+
+        }
+        else
+        {
+            Debug.Log("registered");
+            UserProfileManager.SetNameAndRatingAndToken(ress[0], int.Parse(ress[1]), token);
+            UserProfileManager.UnactiveateSpeechBubble();
+            Debug.Log(UserProfileManager.GetRating());
+        }
+        
+
+    }
+
+    public void OnLRegisterLoginButtonClicked()
+    {
+        _googleAuth = new GoogleAuthentification(GetUserProfile);
+        _googleAuth.TryAuthorize();
+    }
+
+    
 }
