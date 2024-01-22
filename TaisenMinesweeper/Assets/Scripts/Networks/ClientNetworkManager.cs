@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -10,31 +11,35 @@ public class ClientNetworkManager: MonoBehaviour
     UnityEvent _onMatchingFinished;
     [SerializeField] GameManager _gameManager;
 
-    static NativeWebSocket.WebSocket _webSocket;
-    string _opponentIpAddr = "";
+    static HybridWebSocket.WebSocket _webSocket;
+    static string _opponentIpAddr = "";
     int _nowBattlingMsgNum = 0;
 
 
     public void Init()
     {
         string url = "wss://tmserver.yumarun.net:8080/ws";
-        _webSocket = new NativeWebSocket.WebSocket(url);
+        _webSocket = HybridWebSocket.WebSocketFactory.CreateInstance(url);
         _webSocket.OnOpen += OnOpen;
         _webSocket.OnMessage += OnMessage;
         _webSocket.Connect();
         _onMatchingFinished = new UnityEvent();
         _onMatchingFinished.AddListener(_gameManager.OnMatchDecided);
 
+        _opponentIpAddr = "";
+
     }
 
-    void OnOpen()
+    private void OnOpen()
     {
         Debug.Log("Connected to server...");
     }
 
+ 
+
     void OnMessage(byte[] bytes)
     {
-        var bytes_str = System.Text.Encoding.UTF8.GetString(bytes);
+        var bytes_str = Encoding.UTF8.GetString(bytes);
 
         Debug.Log("WebSocket message received: " + bytes_str);
         string[] msgsp = bytes_str.Split('\n');
@@ -86,6 +91,11 @@ public class ClientNetworkManager: MonoBehaviour
 
                 _gameManager.OnOpponentBoardSent(msg.LatestBoard, msg.LatestAttackPoint / 10);
             }
+            else if (msgsp[0] == "SendNewRating")
+            {
+                Debug.Log($"newRating set: {msgsp[1]}");
+                UserProfileManager.SetNameAndRatingAndToken(UserProfileManager.GetName(), int.Parse(msgsp[1]), UserProfileManager.GetToken());
+            }
             else 
             {
                 Debug.Log("unregistered message received 2...........");
@@ -94,20 +104,24 @@ public class ClientNetworkManager: MonoBehaviour
     }
 
 
-    public void RequestMatching()
+    public void RequestMatching(string name, string subject, int rating)
     {
-        var msg = new MatchingPhaseMessageToServer("Taro", "123");
+        
+
+        var msg = new MatchingPhaseMessageToServer(name, subject, rating);
         string json = JsonUtility.ToJson(msg);
 
-        _webSocket.SendText("matching\n" + json);
+        _webSocket.Send(Encoding.UTF8.GetBytes("matching\n" + json));
     }
 
     public void RequestFriendMatching()
     {
+       
+
         var msg = new JsonOnFriendMatchRequest("makeroom", "_");
         string json = JsonUtility.ToJson(msg);
 
-        _webSocket.SendText("friendmatching\n" + json);
+        _webSocket.Send(Encoding.UTF8.GetBytes("friendmatching\n" + json));
     }
 
     public void RequestJoinFriendsRoiom(string password)
@@ -118,28 +132,31 @@ public class ClientNetworkManager: MonoBehaviour
         Debug.Log(json == null);
         Debug.Log(_webSocket == null);
 
-        _webSocket.SendText("friendmatching\n" + json);
+        _webSocket.Send(Encoding.UTF8.GetBytes("friendmatching\n" + json));
     }
 
     public void SendBoardInfo(int[] board)
     {
+        
         var amountOfOpenedCells = _gameManager.GetOpenedCellNum();
-        var msg = new BattlingPhaseMessageToServer(board, false, false, _nowBattlingMsgNum++, amountOfOpenedCells, _opponentIpAddr);
+        var msg = new BattlingPhaseMessageToServer(board, false, false, _nowBattlingMsgNum++, amountOfOpenedCells, _opponentIpAddr, UserProfileManager.GetName(), UserProfileManager.GetRating(), UserProfileManager.GetToken());
         string json = JsonUtility.ToJson(msg);
 
-        _webSocket.SendText("battling\n" + json);
+        _webSocket.Send(Encoding.UTF8.GetBytes("battling\n" + json));
     }
 
     [Serializable]
     public class MatchingPhaseMessageToServer
     {
-        public string State;
-        public string Message;
+        public string Name;
+        public string Subject;
+        public int Rating;
 
-        public MatchingPhaseMessageToServer(string state, string message)
+        public MatchingPhaseMessageToServer(string name, string subject, int rating)
         {
-            State = state;
-            Message = message;
+            Name = name;
+            Subject = subject;
+            Rating = rating;
         }
     }
 
@@ -152,8 +169,11 @@ public class ClientNetworkManager: MonoBehaviour
         public int LatestMsgNum;
         public int TotalNumberOfUsrDefusedCells;
         public string OpponentAddr;
+        public string Name;
+        public int Rating;
+        public string Subject;
 
-        public BattlingPhaseMessageToServer(int[] boardState, bool lost, bool won, int msgNum, int ap, string opponentIp)
+        public BattlingPhaseMessageToServer(int[] boardState, bool lost, bool won, int msgNum, int ap, string opponentIp, string name, int rating, string subject)
         {
             LatestBoard = boardState;
             Lost = lost;
@@ -161,6 +181,9 @@ public class ClientNetworkManager: MonoBehaviour
             LatestMsgNum = msgNum;
             TotalNumberOfUsrDefusedCells = ap;
             OpponentAddr = opponentIp;
+            Name = name;
+            Rating = rating;
+            Subject = subject;
         }
     }
 
@@ -208,28 +231,17 @@ public class ClientNetworkManager: MonoBehaviour
     {
         if (win)
         {
-            var msg = new BattlingPhaseMessageToServer(new int[0], false, true, -1, -1, "-1");
+            var msg = new BattlingPhaseMessageToServer(new int[0], false, true, -1, -1, _opponentIpAddr, UserProfileManager.GetName(), UserProfileManager.GetRating(), UserProfileManager.GetToken());
             string json = JsonUtility.ToJson(msg);
 
-            _webSocket.SendText("battling\n" + json);
+            _webSocket.Send(Encoding.UTF8.GetBytes("battling\n" + json));
         }
         else
         {
-            var msg = new BattlingPhaseMessageToServer(new int[0], true, false, -1, -1, "-1");
+            var msg = new BattlingPhaseMessageToServer(new int[0], true, false, -1, -1, _opponentIpAddr, UserProfileManager.GetName(), UserProfileManager.GetRating(), UserProfileManager.GetToken());
             string json = JsonUtility.ToJson(msg);
 
-            _webSocket.SendText("battling\n" + json);
+            _webSocket.Send(Encoding.UTF8.GetBytes("battling\n" + json));
         }
-    }
-
-    
-    void Update()
-    {
-#if !UNITY_WEBGL || UNITY_EDITOR
-        if (_webSocket != null)
-        {
-            _webSocket.DispatchMessageQueue();
-        }
-#endif
     }
 }
