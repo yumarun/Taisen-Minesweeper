@@ -57,11 +57,12 @@ func getNameAndRating(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, name+"\n"+strconv.Itoa(rating))
 }
 
-// GET (token, name -> fail or success)
+// GET (token, rating -> fail or success)
 func setRating(w http.ResponseWriter, r *http.Request) {
 	body := make([]byte, r.ContentLength)
 	r.Body.Read(body)
 	args := strings.Split(string(body), " ")
+	fmt.Println("len(args): " + strconv.Itoa(len(args)) + ", args[1]: " + args[1])
 	rating, err := strconv.Atoi(args[1])
 	if err != nil {
 		panic(err)
@@ -192,6 +193,10 @@ func main() {
 	defer db.Close()
 
 	rows, err := db.Query("SELECT * FROM users_test")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	defer rows.Close()
 	var userResult []dbEntry
 	for rows.Next() {
@@ -204,12 +209,6 @@ func main() {
 	for _, u := range userResult {
 		fmt.Println("id: ", u.id, " token: ", u.token[0:7], " name: ", u.name, " rating: ", u.rating)
 	}
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	defer rows.Close()
 
 	http.HandleFunc("/api/SetName/", setName)
 	http.HandleFunc("/api/SetRating/", setRating)
