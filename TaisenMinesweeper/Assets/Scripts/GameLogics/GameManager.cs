@@ -84,7 +84,10 @@ public class GameManager : MonoBehaviour
             if (_matchingElapsedTime > MATCHING_INTERVAL )
             {
                 _matchingElapsedTime = 0;
-                _client.RequestMatching();
+                _client.RequestMatching(
+                    UserProfileManager.GetName(), 
+                    UserProfileManager.GetToken(), 
+                    UserProfileManager.GetRating() );
             }
         }
 
