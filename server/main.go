@@ -17,14 +17,17 @@ import (
 type userInfo struct {
 	uid   int
 	state string
+	name string
+	rating int
 	conn  *websocket.Conn
 }
 
 var users = make(map[string]userInfo)
 
 type ClientMessageForJson struct {
-	State   string
-	Message string
+	Name   string
+	Subject string
+	Rating int
 }
 
 type ClientMessage struct {
@@ -36,6 +39,7 @@ var clientMsgChan = make(chan ClientMessage)
 
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
+		return true
 		origin := r.Header.Get("Origin")
 		return origin == "https://taisen-minesweeper-webglver.web.app"
 	},
@@ -72,12 +76,10 @@ func echoAllMessage() {
 		arr := strings.Split(client_str.msg, "\n")
 		ipAddr := client_str.conn.RemoteAddr().String()
 
-		// log.Println("arr0: ", arr[0], " arr1: ", arr[1], " from: ", client_str.conn.RemoteAddr().String())
 
-		// もし「マッチしたい」というメッセージなら
 		if arr[0] == "matching" {
-			var rawClientMsg ClientMessageForJson
-			if err := json.Unmarshal([]byte(arr[1]), &rawClientMsg); err != nil {
+			var cmsg ClientMessageForJson
+			if err := json.Unmarshal([]byte(arr[1]), &cmsg); err != nil {
 				fmt.Println("json deserialize err: ", err)
 				return
 			}
@@ -86,7 +88,7 @@ func echoAllMessage() {
 			user, isExistingUser := users[ipAddr]
 			if !isExistingUser {
 				uid := len(users)
-				user = userInfo{uid: uid, state: rawClientMsg.State, conn: client_str.conn}
+				user = userInfo{uid: uid, state: "", name: cmsg.Name, rating: cmsg.Rating, conn: client_str.conn} 
 				users[ipAddr] = user
 			}
 
