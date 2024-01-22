@@ -4,8 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"sort"
-
+	"bytes"
 	"github.com/gorilla/websocket"
+	"net/http"
+	"io"
+	"strconv"
 )
 
 var allMatches = make(map[string]*match)
@@ -14,6 +17,7 @@ var matchNumCount = 0
 
 var MAX_INFLICTED_DAMAGE = 50
 
+// TODO: Name・Rating・Subjectも送るように
 type msgFromClientJsonFormat struct {
 	LatestBoard                  []int
 	Lost                         bool
@@ -21,6 +25,9 @@ type msgFromClientJsonFormat struct {
 	LatestMsgNum                 int
 	TotalNumberOfUsrDefusedCells int
 	OpponentAddr                 string
+	Name string
+	Rating int
+	Subject string
 }
 
 type msgToClientJsonFormat struct {
@@ -35,6 +42,7 @@ type match struct {
 	matchID int
 	uindex  map[string]int
 	clients [2]clientCondition
+	isFinished bool
 }
 
 type clientCondition struct {
@@ -46,10 +54,15 @@ type clientCondition struct {
 	isReady                   bool
 	totalDamageInflictedToOpp int
 	totalNumOfOpenedCells     int
+	name string
+	rating int
+	subject string
 }
 
+
+
 func initMatch(ip1 string, ip2 string) {
-	fmt.Println("initMatch is called")
+	fmt.Println("initMatch() is called")
 
 	// register map[ip1]ip2 and map[ip2]ip1
 	ipAddr_oppIpAddr[ip1] = ip2
@@ -65,7 +78,12 @@ func initMatch(ip1 string, ip2 string) {
 		matchID: newMatchID,
 		uindex:  uindex,
 		clients: [2]clientCondition{},
+		isFinished: false,
 	}
+
+	newMatch.clients[0].rating = -1
+	newMatch.clients[1].rating = -1
+
 
 	allMatches[getSortedAddrs(ip1, ip2)] = &newMatch
 }
@@ -77,25 +95,37 @@ func Process(rawMsg string, conn *websocket.Conn) {
 
 	myIpAddr := conn.RemoteAddr().String()
 
-	if c.Lost {
-		sendButtleOutcomeToClients(ipAddr_oppIpAddr[myIpAddr], false)
-		OnGameFin(ipAddr_oppIpAddr[myIpAddr], myIpAddr)
-		return
-	}
-
-	if c.Won {
-		sendButtleOutcomeToClients(myIpAddr, false)
-		OnGameFin(myIpAddr, ipAddr_oppIpAddr[myIpAddr])
-		return
-	}
-
 	if !isMatchRegistered(myIpAddr, c.OpponentAddr) {
 		initMatch(myIpAddr, c.OpponentAddr)
 	}
 
+
 	joiningMatch := allMatches[getSortedAddrs(myIpAddr, c.OpponentAddr)]
 
+	if c.Lost {
+		if !joiningMatch.isFinished {
+			sendButtleOutcomeToClients(ipAddr_oppIpAddr[myIpAddr], false)
+			OnGameFin(ipAddr_oppIpAddr[myIpAddr], myIpAddr)
+			joiningMatch.isFinished = true;
+			return
+		}
+		
+	}
+
+	if c.Won {
+		if !joiningMatch.isFinished {
+			sendButtleOutcomeToClients(myIpAddr, false)
+			OnGameFin(myIpAddr, ipAddr_oppIpAddr[myIpAddr])
+			joiningMatch.isFinished = true
+			return
+		}
+		
+	}
+
+
+	
 	myUindex := joiningMatch.uindex[myIpAddr]
+
 
 	// update client's total num of opened cells to the latest one.
 	joiningMatch.clients[myUindex].totalNumOfOpenedCells = c.TotalNumberOfUsrDefusedCells
@@ -109,22 +139,23 @@ func Process(rawMsg string, conn *websocket.Conn) {
 		isReady:                   true,
 		totalDamageInflictedToOpp: joiningMatch.clients[myUindex].totalDamageInflictedToOpp,
 		totalNumOfOpenedCells:     joiningMatch.clients[myUindex].totalNumOfOpenedCells,
+		name: c.Name,
+		rating: c.Rating,
+		subject: c.Subject,
 	}
 
-	fmt.Println("addr: ", myIpAddr, " uindex: ", myUindex)
 
 	setMyCondition(
 		myCond,
 		&joiningMatch.clients[myUindex],
 	)
 
+
 	if joiningMatch.clients[1-myUindex].isReady {
 		sendOpponentCondition(joiningMatch.clients[1-myUindex], conn)
 		updateOppCondWithDmgHeInflicted(getSortedAddrs(myIpAddr, c.OpponentAddr), 1-myUindex)
 
-	} else {
-		// TODO
-	}
+	} 
 
 }
 
@@ -136,6 +167,7 @@ func getSortedAddrs(addr1 string, addr2 string) string {
 
 func isMatchRegistered(addr1 string, addr2 string) bool {
 	_, ok := allMatches[getSortedAddrs(addr1, addr2)]
+	fmt.Println("isMatchRegsiterred() called. ok: " + fmt.Sprintf("%t", ok) + " ip1: " + addr1 + " ip2: " + addr2)
 	return ok
 }
 
@@ -156,7 +188,12 @@ func setNewUindex(uindex map[string]int, ip1 string, ip2 string) {
 }
 
 func setMyCondition(latestCondition clientCondition, oldCondition *clientCondition) {
+
+	rating := (*oldCondition).rating
 	*oldCondition = latestCondition
+	if rating != -1 { // InitMatchが呼ばれた後はratingを更新しない
+		(*oldCondition).rating = rating	
+	}
 }
 
 func sendOpponentCondition(opponentCond clientCondition, myConn *websocket.Conn) {
@@ -195,13 +232,20 @@ func calculateDamegeToInflictToOpponent(totalDamageInflictedToOpp int, totalNumO
 	damage := ((totalNumOfOpenedCells - totalDamageInflictedToOpp) / 10) * 10
 	damage = Min4int(damage, MAX_INFLICTED_DAMAGE)
 
-	fmt.Println("199 ", totalDamageInflictedToOpp, totalNumOfOpenedCells, damage)
+	// fmt.Println("199 ", totalDamageInflictedToOpp, totalNumOfOpenedCells, damage)
 
 	return damage
 }
 
 func Min4int(a int, b int) int {
 	if a < b {
+		return a
+	}
+	return b
+}
+
+func Max4int(a int, b int) int {
+	if a > b {
 		return a
 	}
 	return b
@@ -214,24 +258,13 @@ func updateOppCondWithDmgHeInflicted(matchIdx string, opponentUindex int) {
 }
 
 func OnClientDisconnected(ipAddr string) {
+	fmt.Println("OnClientDisconnected() called.")
 
-	// opponentIpAddr := ipAddr_oppIpAddr[ipAddr]
-
-	// // 切断されたplayerへmessageを送信
-	// fmt.Println(205)
-	// canceledMatch := allMatches[getSortedAddrs(ipAddr, opponentIpAddr)]
-	// fmt.Println(207)
-
-	// disconnectedUsrId := canceledMatch.uindex[ipAddr] // canceledMatchがnil??
-	// fmt.Println(210)
-
-	// winnerId := 1 - disconnectedUsrId
-
-	// if err := canceledMatch.clients[winnerId].conn.WriteMessage(1, []byte("opponent disconnected. you win.")); err != nil {
-	// 	fmt.Println("send win message err: ", err)
-	// }
-
-	// canceledMatch.clients[winnerId].conn.Close()
+	_, ok := ipAddr_oppIpAddr[ipAddr]
+	if !ok {
+		fmt.Println("Client[" + ipAddr + "] disconnected but game already closed.")
+		return
+	}
 
 	sendButtleOutcomeToClients(ipAddr_oppIpAddr[ipAddr], true)
 	OnGameFin(ipAddr_oppIpAddr[ipAddr], ipAddr)
@@ -239,8 +272,21 @@ func OnClientDisconnected(ipAddr string) {
 
 // ipAddr_oppIpAddr, allmatchesから削除
 func OnGameFin(winnerIpAddr string, loserIpAddr string) {
+
+	fmt.Println("On game fin. winner: " + winnerIpAddr)
+
+	winnerId := allMatches[getSortedAddrs(winnerIpAddr, loserIpAddr)].uindex[winnerIpAddr]
+	loserId := 1 - winnerId
+	winner := allMatches[getSortedAddrs(winnerIpAddr, loserIpAddr)].clients[winnerId]
+	loser := allMatches[getSortedAddrs(winnerIpAddr, loserIpAddr)].clients[loserId]
+	updateUserProfileOnGameFin(winner, loser)
+
 	delete(ipAddr_oppIpAddr, winnerIpAddr)
 	delete(ipAddr_oppIpAddr, loserIpAddr)
+
+	allMatches[getSortedAddrs(winnerIpAddr, loserIpAddr)].clients[0].conn.Close()
+	allMatches[getSortedAddrs(winnerIpAddr, loserIpAddr)].clients[1].conn.Close()
+
 	delete(allMatches, getSortedAddrs(winnerIpAddr, loserIpAddr))
 }
 
@@ -251,7 +297,6 @@ func sendButtleOutcomeToClients(winnerIpAddr string, OnDisconnected bool) {
 
 	if OnDisconnected {
 
-		fmt.Println(207)
 
 		if err := nowMatch.clients[winnerId].conn.WriteMessage(1, []byte("opponent disconnected. you win.")); err != nil {
 			fmt.Println("send win message err: ", err)
@@ -262,13 +307,79 @@ func sendButtleOutcomeToClients(winnerIpAddr string, OnDisconnected bool) {
 		if err := nowMatch.clients[winnerId].conn.WriteMessage(1, []byte("YouWon")); err != nil {
 			fmt.Println("send message err: ", err)
 		}
+
 		if err := nowMatch.clients[loserId].conn.WriteMessage(1, []byte("YouLost")); err != nil {
 			fmt.Println("send message err: ", err)
 		}
 
-		nowMatch.clients[winnerId].conn.Close()
-		nowMatch.clients[loserId].conn.Close()
 
 	}
 
 }
+
+func updateUserProfileOnGameFin(winner clientCondition, loser clientCondition) {
+	// Calculate the winner's new rating
+	winnersNewRating := getNewRating(winner.rating, loser.rating, true)
+
+	// Update the winner's profile
+	setNewRating(winnersNewRating, winner.subject)
+
+	// Calculate the loser's new rating
+	losersNewRating := getNewRating(winner.rating, loser.rating, false)
+
+	// Update the winner's profile 
+	setNewRating(losersNewRating, loser.subject)
+
+	// Update ratings on client sides.
+	updateRatingOnClientSide(winner, winnersNewRating)
+	updateRatingOnClientSide(loser, losersNewRating)
+
+}
+
+func updateRatingOnClientSide(client clientCondition, newRating int) {
+	if err := client.conn.WriteMessage(1, []byte("SendNewRating\n" + strconv.Itoa(newRating))); err != nil {
+		fmt.Println("send message err: ", err)
+	}
+}
+
+func getNewRating(oldWinnerRating int, oldLoserRating int, isCalcForWinner bool) int {
+	k := 32
+	
+	diff := float64(k) * ((float64(oldLoserRating) - float64(oldWinnerRating)) / 800.0 + 0.5)
+	if isCalcForWinner {
+		fmt.Println("oldWinnerRating: ", oldWinnerRating)
+		fmt.Println("winner: ", oldWinnerRating + int(diff))
+		return oldWinnerRating + int(diff)
+	} else {
+		fmt.Println("oldLoserRating: ", oldLoserRating)
+		fmt.Println("loser: ", oldLoserRating - int(diff))
+		return oldLoserRating - int(diff)
+	}
+}
+
+func setNewRating(newRating int, subject string) {
+	endpoint := "https://tmapiserver.yumarun.net:8080/api/SetRating/"
+
+	body := []byte(subject + " " + strconv.Itoa(newRating))
+	fmt.Println()
+	buf := bytes.NewBuffer(body)
+	req, err := http.NewRequest("POST", endpoint, buf)
+	if err != nil {
+		panic(err)
+	}
+
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+	client := &http.Client{}
+	res, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+
+	defer res.Body.Close()
+
+	b, err := io.ReadAll(res.Body)
+	fmt.Println(string(b))
+
+}
+
