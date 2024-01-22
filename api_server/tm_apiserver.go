@@ -170,13 +170,13 @@ func checkDeplicateName(w http.ResponseWriter, r *http.Request) {
 func main() {
 	fmt.Println("api server start!")
 
-	f, err := os.Open("MYSQL_PASSWORD.txt")
+	f, err := os.Open("/home/ubuntu/TM_api/api_server/MYSQL_PASSWORD.txt")
 	if err != nil {
 		panic(err)
 	}
 
 	defer f.Close()
-
+	fmt.Println("179")
 	buf := make([]byte, 64)
 	n, err := f.Read(buf)
 	if err != nil {
@@ -191,6 +191,7 @@ func main() {
 	}
 
 	defer db.Close()
+	fmt.Println("194")
 
 	rows, err := db.Query("SELECT * FROM users_test")
 	if err != nil {
@@ -199,6 +200,8 @@ func main() {
 
 	defer rows.Close()
 	var userResult []dbEntry
+	fmt.Println("203")
+
 	for rows.Next() {
 		user := dbEntry{}
 		if err := rows.Scan(&user.id, &user.token, &user.name, &user.rating); err != nil {
