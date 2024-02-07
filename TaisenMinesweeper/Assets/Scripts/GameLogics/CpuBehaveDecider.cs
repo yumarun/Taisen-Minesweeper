@@ -151,7 +151,7 @@ public class CpuBehaveDecider
             }
         }
 
-        var cellSets = new List<(SortedSet<(int, int)>, int)>();
+        //var cellSets = new List<(SortedSet<(int, int)>, int)>();
 
         for (int y = Board.BoardHeight - 1; y >= 0; y--)
         {
@@ -198,134 +198,134 @@ public class CpuBehaveDecider
                 }
                 else if (0 < remainingBomsNum && remainingBomsNum < unopenedCells.Count)
                 {
-                    var cellSet = new SortedSet<(int, int)>();
-                    for (int k = 0; k < unopenedCells.Count; k++)
-                    {
-                        cellSet.Add((y + _dy[unopenedCells[k]], x + _dx[unopenedCells[k]]));
-                    }
-                    cellSets.Add((cellSet, remainingBomsNum));
+                    //var cellSet = new SortedSet<(int, int)>();
+                    //for (int k = 0; k < unopenedCells.Count; k++)
+                    //{
+                    //    cellSet.Add((y + _dy[unopenedCells[k]], x + _dx[unopenedCells[k]]));
+                    //}
+                    //cellSets.Add((cellSet, remainingBomsNum));
                 }
             }
         }
 
-        var j1 = cellSets.Count - 1;
-        int i1;
-        while (j1 >= 1)
-        {
-            i1 = j1 - 1;
-            while (i1 >= 0)
-            {
-                if (cellSets[i1].Equals(cellSets[j1]))
-                {
-                    cellSets.Remove(cellSets[j1]);
-                    break;
-                }
-                i1--;
-            }
-            j1--;
-        }
+        //var j1 = cellSets.Count - 1;
+        //int i1;
+        //while (j1 >= 1)
+        //{
+        //    i1 = j1 - 1;
+        //    while (i1 >= 0)
+        //    {
+        //        if (cellSets[i1].Equals(cellSets[j1]))
+        //        {
+        //            cellSets.Remove(cellSets[j1]);
+        //            break;
+        //        }
+        //        i1--;
+        //    }
+        //    j1--;
+        //}
 
-        j1 = 1;
-        while (j1 < cellSets.Count)
-        {
-            for (int i = 0; i < j1; i++)
-            {
-                if (cellSets[i].Item1.Count > 0 && cellSets[j1].Item1.Count > 0)
-                {
+        //j1 = 1;
+        //while (j1 < cellSets.Count)
+        //{
+        //    for (int i = 0; i < j1; i++)
+        //    {
+        //        if (cellSets[i].Item1.Count > 0 && cellSets[j1].Item1.Count > 0)
+        //        {
 
-                    if (cellSets[i].Item1.Count > cellSets[j1].Item1.Count)
-                    {
-                        continue;
-                        CheckCellSets(cellSets[j1], cellSets[i]);
-                    }
-                    else if (cellSets[i].Item1.Count < cellSets[j1].Item1.Count)
-                    {
-                        continue;
+        //            if (cellSets[i].Item1.Count > cellSets[j1].Item1.Count)
+        //            {
+        //                continue;
+        //                //CheckCellSets(cellSets[j1], cellSets[i]);
+        //            }
+        //            else if (cellSets[i].Item1.Count < cellSets[j1].Item1.Count)
+        //            {
+        //                continue;
 
-                        CheckCellSets(cellSets[i], cellSets[j1]);
-                    }
-                }
-            }
-            j1++;
-        }
+        //                //CheckCellSets(cellSets[i], cellSets[j1]);
+        //            }
+        //        }
+        //    }
+        //    j1++;
+        //}
 
         
 
-        void CheckCellSets((SortedSet<(int, int)>, int) subset, (SortedSet<(int, int)>, int) superset)
-        {
-            Debug.Log(205);
-            var subset2 = ChangeSet2(subset.Item1);
-            Debug.Log(207);
+        //void CheckCellSets((SortedSet<(int, int)>, int) subset, (SortedSet<(int, int)>, int) superset)
+        //{
+        //    Debug.Log(205);
+        //    var subset2 = ChangeSet2(subset.Item1);
+        //    Debug.Log(207);
 
-            var super2 = ChangeSet2(superset.Item1);
-            Debug.Log(208);
-
-
-            if (!subset2.IsSubsetOf(super2)) { return; }
-
-            var diffBoms = superset.Item2 - subset.Item2;
-            super2.ExceptWith(subset2);
+        //    var super2 = ChangeSet2(superset.Item1);
+        //    Debug.Log(208);
 
 
-            var diffCellSet = ChangeSet1(super2);
+        //    if (!subset2.IsSubsetOf(super2)) { return; }
 
-            Debug.Log(221);
-
-
-            string subset_str = "";
-            string super_str = "";
-            string diff_str = "";
-            foreach (var item in subset.Item1)
-            {
-                subset_str += item.ToString() + " ";
-            }
-            foreach (var item in superset.Item1)
-            {
-                super_str += item.ToString() + " "; 
-            }
-            foreach (var item in diffCellSet)
-            {
-                diff_str += item.ToString() + " ";  
-            }
+        //    var diffBoms = superset.Item2 - subset.Item2;
+        //    super2.ExceptWith(subset2);
 
 
-            Debug.Log($"subset: {subset_str}, super: {super_str}, diff: {diff_str}");
+        //    var diffCellSet = ChangeSet1(super2);
 
-            if (diffBoms == 0)
-            {
-                foreach (var (y, x) in diffCellSet)
-                {
-                    Debug.Log($"from 215 {y} {x}");
-                    openableCells[y, x] = true;
-                }
-            }
-            else if (diffBoms == diffCellSet.Count)
-            {
-                foreach (var (y, x) in diffCellSet)
-                {
-                    checkableCells[y, x] = true;
-                }
-            }
-            else
-            {
-                bool exists = false;
-                foreach (var cellset in cellSets)
-                {
-                    if (cellset.Item1 == diffCellSet)
-                    {
-                        exists = true;
-                        break;
-                    }
-                }
+        //    Debug.Log(221);
 
-                if (!exists)
-                {
-                    cellSets.Add((diffCellSet, diffBoms));
-                }
-            }
+
+        //    string subset_str = "";
+        //    string super_str = "";
+        //    string diff_str = "";
+        //    foreach (var item in subset.Item1)
+        //    {
+        //        subset_str += item.ToString() + " ";
+        //    }
+        //    foreach (var item in superset.Item1)
+        //    {
+        //        super_str += item.ToString() + " "; 
+        //    }
+        //    foreach (var item in diffCellSet)
+        //    {
+        //        diff_str += item.ToString() + " ";  
+        //    }
+
+
+        //    Debug.Log($"subset: {subset_str}, super: {super_str}, diff: {diff_str}");
+
+        //    if (diffBoms == 0)
+        //    {
+        //        foreach (var (y, x) in diffCellSet)
+        //        {
+        //            Debug.Log($"from 215 {y} {x}");
+        //            openableCells[y, x] = true;
+        //        }
+        //    }
+        //    else if (diffBoms == diffCellSet.Count)
+        //    {
+        //        foreach (var (y, x) in diffCellSet)
+        //        {
+        //            checkableCells[y, x] = true;
+        //        }
+        //    }
+        //    else
+        //    {
+        //        bool exists = false;
+        //        foreach (var cellset in cellSets)
+        //        {
+        //            if (cellset.Item1 == diffCellSet)
+        //            {
+        //                exists = true;
+        //                break;
+        //            }
+        //        }
+
+        //        if (!exists)
+        //        {
+        //            cellSets.Add((diffCellSet, diffBoms));
+        //        }
+        //    }
 
             
-        }
+        //}
 
         return (openableCells, checkableCells);
     }

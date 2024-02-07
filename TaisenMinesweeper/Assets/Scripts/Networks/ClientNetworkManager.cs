@@ -44,63 +44,55 @@ public class ClientNetworkManager: MonoBehaviour
         Debug.Log("WebSocket message received: " + bytes_str);
         string[] msgsp = bytes_str.Split('\n');
 
-        if (msgsp.Length == 1)
+        
+        if (msgsp[0] == "opponent disconnected. you win.")
         {
-            if (msgsp[0] == "opponent disconnected. you win.")
-            {
-                Debug.Log("opponent disconnected.you win.");
-                _gameManager.OnGameFinished(true);
-            }
-            else if (msgsp[0] == "YouWon")
-            {
-                Debug.Log("You won!!!!!!!");
-                _gameManager.OnGameFinished(true);
-            }
-            else if (msgsp[0] == "YouLost")
-            {
-                Debug.Log("You lost...........");
-                _gameManager.OnGameFinished(false);
-            }
-            else
-            {
-                Debug.Log("unregistered message received 1...........");
-            }
+            Debug.Log("opponent disconnected.you win.");
+            _gameManager.OnGameFinished(true);
         }
-        else if (msgsp.Length >= 2)
+        else if (msgsp[0] == "YouWon")
         {
-            if (msgsp[0] == "match!op:")
-            {
-                _opponentIpAddr = msgsp[1];
-                Debug.Log($"Matchi finished. OppenentAddr: {_opponentIpAddr}");
-                _onMatchingFinished.Invoke();
-            }
-            else if (msgsp[0] == "friendmatchok")
-            {
-                _opponentIpAddr = msgsp[1];
-                Debug.Log($"friend matchi finished. OppenentAddr: {_opponentIpAddr}");
-                _onMatchingFinished.Invoke();
-            }
-            else if (msgsp[0] == "makeroomfinished")
-            {
-                Debug.Log($"make room succeeded. password: {msgsp[1]}");
-                _gameManager.OnFriendMakeRoomSucceeded(msgsp[1]);
-            }
-            else if (msgsp[0] == "battling")
-            {
-                var msg = JsonUtility.FromJson<BattlingPhaseMessageFromServer>(msgsp[1]);
+            Debug.Log("You won!!!!!!!");
+            _gameManager.OnGameFinished(true);
+        }
+        else if (msgsp[0] == "YouLost")
+        {
+            Debug.Log("You lost...........");
+            _gameManager.OnGameFinished(false);
+        }
+        else if (msgsp[0] == "match!op:")
+        {
+            _opponentIpAddr = msgsp[1];
+            Debug.Log($"Matchi finished. OppenentAddr: {_opponentIpAddr}");
+            _onMatchingFinished.Invoke();
+        }
+        else if (msgsp[0] == "friendmatchok")
+        {
+            _opponentIpAddr = msgsp[1];
+            Debug.Log($"friend matchi finished. OppenentAddr: {_opponentIpAddr}");
+            _onMatchingFinished.Invoke();
+        }
+        else if (msgsp[0] == "makeroomfinished")
+        {
+            Debug.Log($"make room succeeded. password: {msgsp[1]}");
+            _gameManager.OnFriendMakeRoomSucceeded(msgsp[1]);
+        }
+        else if (msgsp[0] == "battling")
+        {
+            var msg = JsonUtility.FromJson<BattlingPhaseMessageFromServer>(msgsp[1]);
 
-                _gameManager.OnOpponentBoardSent(msg.LatestBoard, msg.LatestAttackPoint / 10);
-            }
-            else if (msgsp[0] == "SendNewRating")
-            {
-                Debug.Log($"newRating set: {msgsp[1]}");
-                UserProfileManager.SetNameAndRatingAndToken(UserProfileManager.GetName(), int.Parse(msgsp[1]), UserProfileManager.GetToken());
-            }
-            else 
-            {
-                Debug.Log("unregistered message received 2...........");
-            }
+            _gameManager.OnOpponentBoardSent(msg.LatestBoard, msg.LatestAttackPoint / 10);
         }
+        else if (msgsp[0] == "SendNewRating")
+        {
+            Debug.Log($"newRating set: {msgsp[1]}");
+            UserProfileManager.SetNameAndRatingAndToken(UserProfileManager.GetName(), int.Parse(msgsp[1]), UserProfileManager.GetToken());
+        }
+        else 
+        {
+            Debug.Log("unregistered message received ");
+        }
+        
     }
 
 

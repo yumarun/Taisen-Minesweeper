@@ -159,7 +159,7 @@ public class Board
             }
             return clickedMine;
         }
-        // 数字マスを引いたとき // TODO: 周りの爆弾を見つけてその爆弾について，checkを付けたりする
+        // 数字マスを引いたとき 
         if (_cells[y, x].WrittenValue > 0)
         {
             _cells[y, x].Open(_cellImageAsset._numberImages[_cells[y, x].WrittenValue], ref _amountOfOpenedCellsFromClick, ref _amountOfAutomaticallyOpenedCells, fromClick);
