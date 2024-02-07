@@ -1,6 +1,6 @@
-process_id=$(pgrep -o main)
+process_id=$(pgrep -o TM_matching)
 if [ -z "$process_id" ]; then
 	echo "restart go run ."
-	/usr/local/go/bin/go run /home/yumaru/TM/server/main.go >> aaa.log &
-	echo "finn"
+	/home/yumaru/TM/server/TM_matching >> aaa.log &
+	echo "fin"
 fi

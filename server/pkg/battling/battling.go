@@ -1,14 +1,18 @@
 package battling
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
-	"sort"
-	"bytes"
-	"github.com/gorilla/websocket"
-	"net/http"
 	"io"
+	"log"
+	"net/http"
+	"sort"
 	"strconv"
+
+	//"strings"
+
+	"github.com/gorilla/websocket"
 )
 
 var allMatches = make(map[string]*match)
@@ -17,7 +21,6 @@ var matchNumCount = 0
 
 var MAX_INFLICTED_DAMAGE = 50
 
-// TODO: Name・Rating・Subjectも送るように
 type msgFromClientJsonFormat struct {
 	LatestBoard                  []int
 	Lost                         bool
@@ -25,9 +28,9 @@ type msgFromClientJsonFormat struct {
 	LatestMsgNum                 int
 	TotalNumberOfUsrDefusedCells int
 	OpponentAddr                 string
-	Name string
-	Rating int
-	Subject string
+	Name                         string
+	Rating                       int
+	Subject                      string
 }
 
 type msgToClientJsonFormat struct {
@@ -39,9 +42,9 @@ type msgToClientJsonFormat struct {
 }
 
 type match struct {
-	matchID int
-	uindex  map[string]int
-	clients [2]clientCondition
+	matchID    int
+	uindex     map[string]int
+	clients    [2]clientCondition
 	isFinished bool
 }
 
@@ -54,12 +57,10 @@ type clientCondition struct {
 	isReady                   bool
 	totalDamageInflictedToOpp int
 	totalNumOfOpenedCells     int
-	name string
-	rating int
-	subject string
+	name                      string
+	rating                    int
+	subject                   string
 }
-
-
 
 func initMatch(ip1 string, ip2 string) {
 	fmt.Println("initMatch() is called")
@@ -75,20 +76,21 @@ func initMatch(ip1 string, ip2 string) {
 	setNewUindex(uindex, ip1, ip2)
 
 	newMatch := match{
-		matchID: newMatchID,
-		uindex:  uindex,
-		clients: [2]clientCondition{},
+		matchID:    newMatchID,
+		uindex:     uindex,
+		clients:    [2]clientCondition{},
 		isFinished: false,
 	}
 
 	newMatch.clients[0].rating = -1
 	newMatch.clients[1].rating = -1
 
-
 	allMatches[getSortedAddrs(ip1, ip2)] = &newMatch
 }
 
 func Process(rawMsg string, conn *websocket.Conn) {
+	fmt.Println("battling.Process() called.")
+	fmt.Println("msg: ", rawMsg, ", ip: ", conn.RemoteAddr().String())
 
 	c := msgFromClientJsonFormat{}
 	deserializeMessage(rawMsg, &c)
@@ -99,17 +101,16 @@ func Process(rawMsg string, conn *websocket.Conn) {
 		initMatch(myIpAddr, c.OpponentAddr)
 	}
 
-
 	joiningMatch := allMatches[getSortedAddrs(myIpAddr, c.OpponentAddr)]
 
 	if c.Lost {
 		if !joiningMatch.isFinished {
 			sendButtleOutcomeToClients(ipAddr_oppIpAddr[myIpAddr], false)
 			OnGameFin(ipAddr_oppIpAddr[myIpAddr], myIpAddr)
-			joiningMatch.isFinished = true;
+			joiningMatch.isFinished = true
 			return
 		}
-		
+
 	}
 
 	if c.Won {
@@ -119,13 +120,10 @@ func Process(rawMsg string, conn *websocket.Conn) {
 			joiningMatch.isFinished = true
 			return
 		}
-		
+
 	}
 
-
-	
 	myUindex := joiningMatch.uindex[myIpAddr]
-
 
 	// update client's total num of opened cells to the latest one.
 	joiningMatch.clients[myUindex].totalNumOfOpenedCells = c.TotalNumberOfUsrDefusedCells
@@ -139,23 +137,21 @@ func Process(rawMsg string, conn *websocket.Conn) {
 		isReady:                   true,
 		totalDamageInflictedToOpp: joiningMatch.clients[myUindex].totalDamageInflictedToOpp,
 		totalNumOfOpenedCells:     joiningMatch.clients[myUindex].totalNumOfOpenedCells,
-		name: c.Name,
-		rating: c.Rating,
-		subject: c.Subject,
+		name:                      c.Name,
+		rating:                    c.Rating,
+		subject:                   c.Subject,
 	}
-
 
 	setMyCondition(
 		myCond,
 		&joiningMatch.clients[myUindex],
 	)
 
-
 	if joiningMatch.clients[1-myUindex].isReady {
 		sendOpponentCondition(joiningMatch.clients[1-myUindex], conn)
 		updateOppCondWithDmgHeInflicted(getSortedAddrs(myIpAddr, c.OpponentAddr), 1-myUindex)
 
-	} 
+	}
 
 }
 
@@ -166,6 +162,12 @@ func getSortedAddrs(addr1 string, addr2 string) string {
 }
 
 func isMatchRegistered(addr1 string, addr2 string) bool {
+	// cpuチェック
+	// withoutPort := strings.Split(addr1, ":")[0]
+	// if withoutPort == "153.120.121.242" {
+	// 	return true
+	// }
+
 	_, ok := allMatches[getSortedAddrs(addr1, addr2)]
 	fmt.Println("isMatchRegsiterred() called. ok: " + fmt.Sprintf("%t", ok) + " ip1: " + addr1 + " ip2: " + addr2)
 	return ok
@@ -192,7 +194,7 @@ func setMyCondition(latestCondition clientCondition, oldCondition *clientConditi
 	rating := (*oldCondition).rating
 	*oldCondition = latestCondition
 	if rating != -1 { // InitMatchが呼ばれた後はratingを更新しない
-		(*oldCondition).rating = rating	
+		(*oldCondition).rating = rating
 	}
 }
 
@@ -284,19 +286,29 @@ func OnGameFin(winnerIpAddr string, loserIpAddr string) {
 	delete(ipAddr_oppIpAddr, winnerIpAddr)
 	delete(ipAddr_oppIpAddr, loserIpAddr)
 
-	allMatches[getSortedAddrs(winnerIpAddr, loserIpAddr)].clients[0].conn.Close()
-	allMatches[getSortedAddrs(winnerIpAddr, loserIpAddr)].clients[1].conn.Close()
+	if allMatches[getSortedAddrs(winnerIpAddr, loserIpAddr)].clients[0].name != ".cpu" {
+		allMatches[getSortedAddrs(winnerIpAddr, loserIpAddr)].clients[0].conn.Close()
+
+	}
+	if allMatches[getSortedAddrs(winnerIpAddr, loserIpAddr)].clients[1].name != ".cpu" {
+		allMatches[getSortedAddrs(winnerIpAddr, loserIpAddr)].clients[1].conn.Close()
+
+	}
 
 	delete(allMatches, getSortedAddrs(winnerIpAddr, loserIpAddr))
 }
 
 func sendButtleOutcomeToClients(winnerIpAddr string, OnDisconnected bool) {
+	fmt.Println("sendButtleOutcomeToClients() called. winnerIpaddr: ", winnerIpAddr, ", ondisconnected: ", OnDisconnected)
+
 	nowMatch := allMatches[getSortedAddrs(winnerIpAddr, ipAddr_oppIpAddr[winnerIpAddr])]
 	winnerId := nowMatch.uindex[winnerIpAddr]
 	loserId := 1 - winnerId
 
 	if OnDisconnected {
+		winnerAddr := nowMatch.clients[winnerId].conn.RemoteAddr().String()
 
+		fmt.Println("on disc, winner ip: ", winnerAddr)
 
 		if err := nowMatch.clients[winnerId].conn.WriteMessage(1, []byte("opponent disconnected. you win.")); err != nil {
 			fmt.Println("send win message err: ", err)
@@ -304,14 +316,19 @@ func sendButtleOutcomeToClients(winnerIpAddr string, OnDisconnected bool) {
 
 		nowMatch.clients[winnerId].conn.Close()
 	} else {
-		if err := nowMatch.clients[winnerId].conn.WriteMessage(1, []byte("YouWon")); err != nil {
+		loserAddr := nowMatch.clients[loserId].conn.RemoteAddr().String()
+		winnerAddr := nowMatch.clients[winnerId].conn.RemoteAddr().String()
+		log.Println("loserAddr: ", loserAddr, ", winnerAddr: ", winnerAddr)
+
+		
+
+		if err := nowMatch.clients[winnerId].conn.WriteMessage(1, []byte("YouWon\n"+loserAddr)); err != nil {
 			fmt.Println("send message err: ", err)
 		}
 
-		if err := nowMatch.clients[loserId].conn.WriteMessage(1, []byte("YouLost")); err != nil {
+		if err := nowMatch.clients[loserId].conn.WriteMessage(1, []byte("YouLost\n"+winnerAddr)); err != nil {
 			fmt.Println("send message err: ", err)
 		}
-
 
 	}
 
@@ -322,37 +339,42 @@ func updateUserProfileOnGameFin(winner clientCondition, loser clientCondition) {
 	winnersNewRating := getNewRating(winner.rating, loser.rating, true)
 
 	// Update the winner's profile
-	setNewRating(winnersNewRating, winner.subject)
+	if winner.name != ".cpu" {
+		setNewRating(winnersNewRating, winner.subject)
+	}
 
 	// Calculate the loser's new rating
 	losersNewRating := getNewRating(winner.rating, loser.rating, false)
 
-	// Update the winner's profile 
-	setNewRating(losersNewRating, loser.subject)
+	// Update the winner's profile
+	if loser.name != ".cpu" {
+		setNewRating(losersNewRating, loser.subject)
+
+	}
 
 	// Update ratings on client sides.
-	updateRatingOnClientSide(winner, winnersNewRating)
-	updateRatingOnClientSide(loser, losersNewRating)
+	updateRatingOnClientSide(winner, winnersNewRating, loser.conn.RemoteAddr().String())
+	updateRatingOnClientSide(loser, losersNewRating, winner.conn.RemoteAddr().String())
 
 }
 
-func updateRatingOnClientSide(client clientCondition, newRating int) {
-	if err := client.conn.WriteMessage(1, []byte("SendNewRating\n" + strconv.Itoa(newRating))); err != nil {
+func updateRatingOnClientSide(client clientCondition, newRating int, opponentAddr string) {
+	if err := client.conn.WriteMessage(1, []byte("SendNewRating\n"+strconv.Itoa(newRating)+"\n"+opponentAddr)); err != nil {
 		fmt.Println("send message err: ", err)
 	}
 }
 
 func getNewRating(oldWinnerRating int, oldLoserRating int, isCalcForWinner bool) int {
 	k := 32
-	
-	diff := float64(k) * ((float64(oldLoserRating) - float64(oldWinnerRating)) / 800.0 + 0.5)
+
+	diff := float64(k) * ((float64(oldLoserRating)-float64(oldWinnerRating))/800.0 + 0.5)
 	if isCalcForWinner {
 		fmt.Println("oldWinnerRating: ", oldWinnerRating)
-		fmt.Println("winner: ", oldWinnerRating + int(diff))
+		fmt.Println("winner: ", oldWinnerRating+int(diff))
 		return oldWinnerRating + int(diff)
 	} else {
 		fmt.Println("oldLoserRating: ", oldLoserRating)
-		fmt.Println("loser: ", oldLoserRating - int(diff))
+		fmt.Println("loser: ", oldLoserRating-int(diff))
 		return oldLoserRating - int(diff)
 	}
 }
@@ -382,4 +404,3 @@ func setNewRating(newRating int, subject string) {
 	fmt.Println(string(b))
 
 }
-

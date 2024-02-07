@@ -299,3 +299,163 @@ server start...
 Process() in frimatch.go start.
 rmId:  tcHsv6fN
 user state:  waitingfriend
+server start...
+server start...
+server start...
+user state:  matching
+match decided! ip1:  126.65.223.15:49838  ip2:  126.65.223.15:63893
+user state:  matching
+isMatchRegsiterred() called. ok: false ip1: 126.65.223.15:63893 ip2: 126.65.223.15:49838
+initMatch() is called
+user state:  battling
+isMatchRegsiterred() called. ok: true ip1: 126.65.223.15:49838 ip2: 126.65.223.15:63893
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":0,"LatestAttackPoint":0,"OpponentAddr":"126.65.223.15:63893"}
+user state:  battling
+isMatchRegsiterred() called. ok: true ip1: 126.65.223.15:63893 ip2: 126.65.223.15:49838
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":0,"LatestAttackPoint":0,"OpponentAddr":"126.65.223.15:49838"}
+user state:  battling
+isMatchRegsiterred() called. ok: true ip1: 126.65.223.15:49838 ip2: 126.65.223.15:63893
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":1,"LatestAttackPoint":20,"OpponentAddr":"126.65.223.15:63893"}
+user state:  battling
+isMatchRegsiterred() called. ok: true ip1: 126.65.223.15:63893 ip2: 126.65.223.15:49838
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":1,"LatestAttackPoint":0,"OpponentAddr":"126.65.223.15:49838"}
+user state:  battling
+isMatchRegsiterred() called. ok: true ip1: 126.65.223.15:49838 ip2: 126.65.223.15:63893
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":2,"LatestAttackPoint":10,"OpponentAddr":"126.65.223.15:63893"}
+user state:  battling
+isMatchRegsiterred() called. ok: true ip1: 126.65.223.15:63893 ip2: 126.65.223.15:49838
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":2,"LatestAttackPoint":0,"OpponentAddr":"126.65.223.15:49838"}
+user state:  battling
+isMatchRegsiterred() called. ok: true ip1: 126.65.223.15:49838 ip2: 126.65.223.15:63893
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":3,"LatestAttackPoint":0,"OpponentAddr":"126.65.223.15:63893"}
+user state:  battling
+isMatchRegsiterred() called. ok: true ip1: 126.65.223.15:63893 ip2: 126.65.223.15:49838
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":3,"LatestAttackPoint":0,"OpponentAddr":"126.65.223.15:49838"}
+user state:  battling
+isMatchRegsiterred() called. ok: true ip1: 126.65.223.15:49838 ip2: 126.65.223.15:63893
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":4,"LatestAttackPoint":10,"OpponentAddr":"126.65.223.15:63893"}
+user state:  battling
+isMatchRegsiterred() called. ok: true ip1: 126.65.223.15:63893 ip2: 126.65.223.15:49838
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":4,"LatestAttackPoint":0,"OpponentAddr":"126.65.223.15:49838"}
+user state:  battling
+isMatchRegsiterred() called. ok: true ip1: 126.65.223.15:49838 ip2: 126.65.223.15:63893
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":5,"LatestAttackPoint":10,"OpponentAddr":"126.65.223.15:63893"}
+user state:  battling
+isMatchRegsiterred() called. ok: true ip1: 126.65.223.15:49838 ip2: 126.65.223.15:63893
+On game fin. winner: 126.65.223.15:63893
+oldWinnerRating:  1555
+winner:  1566
+
+fin
+oldLoserRating:  1445
+loser:  1434
+
+fin
+user state:  battling
+OnClientDisconnected() called.
+Client[126.65.223.15:63893] disconnected but game already closed.
+OnClientDisconnected() called.
+Client[126.65.223.15:49838] disconnected but game already closed.
+server start...
+user state:  matching
+match decided! ip1:  126.65.223.15:50665  ip2:  126.65.223.15:49988
+user state:  matching
+isMatchRegsiterred() called. ok: false ip1: 126.65.223.15:50665 ip2: 126.65.223.15:49988
+initMatch() is called
+user state:  battling
+isMatchRegsiterred() called. ok: true ip1: 126.65.223.15:49988 ip2: 126.65.223.15:50665
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":0,"LatestAttackPoint":0,"OpponentAddr":"126.65.223.15:50665"}
+user state:  battling
+isMatchRegsiterred() called. ok: true ip1: 126.65.223.15:50665 ip2: 126.65.223.15:49988
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":0,"LatestAttackPoint":0,"OpponentAddr":"126.65.223.15:49988"}
+user state:  battling
+isMatchRegsiterred() called. ok: true ip1: 126.65.223.15:49988 ip2: 126.65.223.15:50665
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":1,"LatestAttackPoint":0,"OpponentAddr":"126.65.223.15:50665"}
+user state:  battling
+isMatchRegsiterred() called. ok: true ip1: 126.65.223.15:50665 ip2: 126.65.223.15:49988
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":1,"LatestAttackPoint":0,"OpponentAddr":"126.65.223.15:49988"}
+user state:  battling
+isMatchRegsiterred() called. ok: true ip1: 126.65.223.15:49988 ip2: 126.65.223.15:50665
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":2,"LatestAttackPoint":40,"OpponentAddr":"126.65.223.15:50665"}
+user state:  battling
+isMatchRegsiterred() called. ok: true ip1: 126.65.223.15:50665 ip2: 126.65.223.15:49988
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":2,"LatestAttackPoint":0,"OpponentAddr":"126.65.223.15:49988"}
+user state:  battling
+isMatchRegsiterred() called. ok: true ip1: 126.65.223.15:49988 ip2: 126.65.223.15:50665
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":3,"LatestAttackPoint":0,"OpponentAddr":"126.65.223.15:50665"}
+user state:  battling
+isMatchRegsiterred() called. ok: true ip1: 126.65.223.15:50665 ip2: 126.65.223.15:49988
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":3,"LatestAttackPoint":0,"OpponentAddr":"126.65.223.15:49988"}
+user state:  battling
+isMatchRegsiterred() called. ok: true ip1: 126.65.223.15:49988 ip2: 126.65.223.15:50665
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":4,"LatestAttackPoint":10,"OpponentAddr":"126.65.223.15:50665"}
+user state:  battling
+isMatchRegsiterred() called. ok: true ip1: 126.65.223.15:49988 ip2: 126.65.223.15:50665
+On game fin. winner: 126.65.223.15:50665
+oldWinnerRating:  1566
+winner:  1576
+
+fin
+oldLoserRating:  1434
+loser:  1424
+
+fin
+user state:  battling
+OnClientDisconnected() called.
+Client[126.65.223.15:50665] disconnected but game already closed.
+OnClientDisconnected() called.
+Client[126.65.223.15:49988] disconnected but game already closed.
+user state:  matching
+match decided! ip1:  126.65.223.15:50000  ip2:  126.65.223.15:50694
+user state:  matching
+isMatchRegsiterred() called. ok: false ip1: 126.65.223.15:50694 ip2: 126.65.223.15:50000
+initMatch() is called
+user state:  battling
+isMatchRegsiterred() called. ok: true ip1: 126.65.223.15:50000 ip2: 126.65.223.15:50694
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":0,"LatestAttackPoint":0,"OpponentAddr":"126.65.223.15:50694"}
+user state:  battling
+isMatchRegsiterred() called. ok: true ip1: 126.65.223.15:50694 ip2: 126.65.223.15:50000
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":0,"LatestAttackPoint":0,"OpponentAddr":"126.65.223.15:50000"}
+user state:  battling
+isMatchRegsiterred() called. ok: true ip1: 126.65.223.15:50000 ip2: 126.65.223.15:50694
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":1,"LatestAttackPoint":20,"OpponentAddr":"126.65.223.15:50694"}
+user state:  battling
+isMatchRegsiterred() called. ok: true ip1: 126.65.223.15:50694 ip2: 126.65.223.15:50000
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":1,"LatestAttackPoint":0,"OpponentAddr":"126.65.223.15:50000"}
+user state:  battling
+isMatchRegsiterred() called. ok: true ip1: 126.65.223.15:50000 ip2: 126.65.223.15:50694
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":2,"LatestAttackPoint":10,"OpponentAddr":"126.65.223.15:50694"}
+user state:  battling
+isMatchRegsiterred() called. ok: true ip1: 126.65.223.15:50694 ip2: 126.65.223.15:50000
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":2,"LatestAttackPoint":0,"OpponentAddr":"126.65.223.15:50000"}
+user state:  battling
+isMatchRegsiterred() called. ok: true ip1: 126.65.223.15:50000 ip2: 126.65.223.15:50694
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":3,"LatestAttackPoint":10,"OpponentAddr":"126.65.223.15:50694"}
+user state:  battling
+isMatchRegsiterred() called. ok: true ip1: 126.65.223.15:50694 ip2: 126.65.223.15:50000
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":3,"LatestAttackPoint":0,"OpponentAddr":"126.65.223.15:50000"}
+user state:  battling
+isMatchRegsiterred() called. ok: true ip1: 126.65.223.15:50000 ip2: 126.65.223.15:50694
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":4,"LatestAttackPoint":0,"OpponentAddr":"126.65.223.15:50694"}
+user state:  battling
+isMatchRegsiterred() called. ok: true ip1: 126.65.223.15:50694 ip2: 126.65.223.15:50000
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":4,"LatestAttackPoint":0,"OpponentAddr":"126.65.223.15:50000"}
+user state:  battling
+isMatchRegsiterred() called. ok: true ip1: 126.65.223.15:50000 ip2: 126.65.223.15:50694
+msgToC:  {"LatestBoard":[0],"IsLosed":false,"LatestMsgNum":5,"LatestAttackPoint":10,"OpponentAddr":"126.65.223.15:50694"}
+user state:  battling
+isMatchRegsiterred() called. ok: true ip1: 126.65.223.15:50000 ip2: 126.65.223.15:50694
+On game fin. winner: 126.65.223.15:50694
+oldWinnerRating:  1576
+winner:  1585
+
+fin
+oldLoserRating:  1424
+loser:  1415
+
+fin
+user state:  battling
+OnClientDisconnected() called.
+Client[126.65.223.15:50694] disconnected but game already closed.
+OnClientDisconnected() called.
+Client[126.65.223.15:50000] disconnected but game already closed.
