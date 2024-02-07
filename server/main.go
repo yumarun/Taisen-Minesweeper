@@ -111,6 +111,9 @@ func echoAllMessage() {
 		} else if arr[0] == "battling" {
 			updateUserState(ipAddr, "battling")
 			battling.Process(arr[1], client_str.conn)
+		} else if arr[0] == "CpuConnectionStart" {
+			fmt.Println("Cpu connection start!")
+			matching.RegisterCPU(client_str.conn)
 		}
 
 		fmt.Println("user state: ", users[client_str.conn.RemoteAddr().String()].state)

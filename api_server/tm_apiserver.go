@@ -19,11 +19,21 @@ type dbEntry struct {
 	rating int
 }
 
+type dbCpuEntry struct {
+	id     int
+	level  int
+	rating int
+}
+
 var mysqlPassword string
+
+// var allowOrigin = "https://taisen-minesweeper-webglver.web.app"
+var allowOrigin = "https://taisen-minesweeper-test.web.app"
+var selfOrigin = "https://tmapiserver.yumarun.net"
 
 // GET (token -> name, rating)
 func getNameAndRating(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:8080")
+	w.Header().Set("Access-Control-Allow-Origin", allowOrigin)
 	w.Header().Set("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,UPDATE,OPTIONS")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
 
@@ -59,6 +69,10 @@ func getNameAndRating(w http.ResponseWriter, r *http.Request) {
 
 // GET (token, rating -> fail or success)
 func setRating(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", allowOrigin)
+	w.Header().Set("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,UPDATE,OPTIONS")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
+
 	body := make([]byte, r.ContentLength)
 	r.Body.Read(body)
 	args := strings.Split(string(body), " ")
@@ -86,6 +100,10 @@ func setRating(w http.ResponseWriter, r *http.Request) {
 
 // GET (token, name -> fail or success)
 func setName(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", allowOrigin)
+	w.Header().Set("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,UPDATE,OPTIONS")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
+
 	body := make([]byte, r.ContentLength)
 	r.Body.Read(body)
 	args := strings.Split(string(body), " ")
@@ -108,7 +126,7 @@ func setName(w http.ResponseWriter, r *http.Request) {
 
 // POST (token, name)
 func registerAccount(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:8080")
+	w.Header().Set("Access-Control-Allow-Origin", allowOrigin)
 	w.Header().Set("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,UPDATE,OPTIONS")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
 
@@ -133,7 +151,7 @@ func registerAccount(w http.ResponseWriter, r *http.Request) {
 
 // POST (name)
 func checkDeplicateName(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:8080")
+	w.Header().Set("Access-Control-Allow-Origin", allowOrigin)
 	w.Header().Set("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,UPDATE,OPTIONS")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
 
@@ -167,16 +185,89 @@ func checkDeplicateName(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// POST(lv)
+func getCpuRating(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,UPDATE,OPTIONS")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
+
+	lv := make([]byte, r.ContentLength)
+	r.Body.Read(lv)
+	db, err := sql.Open("mysql", "root:"+mysqlPassword+"@tcp(localhost:3306)/TM")
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+
+	lvInt, err := strconv.Atoi(string(lv))
+	if err != nil {
+		panic(err)
+	}
+
+	rows, err := db.Query("SELECT * FROM cpu_ratings where level = ?", lvInt)
+	if err != nil {
+		panic(err)
+	}
+	var cpuResult []dbCpuEntry
+	for rows.Next() {
+		cpu := dbCpuEntry{}
+		if err := rows.Scan(&cpu.id, &cpu.level, &cpu.rating); err != nil {
+			panic(err)
+		}
+		cpuResult = append(cpuResult, cpu)
+	}
+
+	var rating int
+	if len(cpuResult) >= 1 {
+		rating = cpuResult[0].rating
+	}
+	fmt.Fprintf(w, strconv.Itoa(rating))
+}
+
+// POST(rating,lv)
+func setCpuRating(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,UPDATE,OPTIONS")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
+
+	body := make([]byte, r.ContentLength)
+	r.Body.Read(body)
+	bodySplitted := strings.Split(string(body), "\n")
+	rating, err := strconv.Atoi(bodySplitted[0])
+	if err != nil {
+		panic(err)
+	}
+	lv, err := strconv.Atoi(bodySplitted[1])
+	if err != nil {
+		panic(err)
+	}
+
+	db, err := sql.Open("mysql", "root:"+mysqlPassword+"@tcp(localhost:3306)/TM")
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+
+	upd, err := db.Prepare("UPDATE cpu_ratings set rating = ? where level = ?")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	upd.Exec(rating, lv)
+
+	fmt.Fprintf(w, "rating set fin")
+}
+
 func main() {
 	fmt.Println("api server start!")
 
-	f, err := os.Open("MYSQL_PASSWORD.txt")
+	f, err := os.Open("/home/ubuntu/TM_api/api_server/MYSQL_PASSWORD.txt")
 	if err != nil {
 		panic(err)
 	}
 
 	defer f.Close()
-
+	fmt.Println("179")
 	buf := make([]byte, 64)
 	n, err := f.Read(buf)
 	if err != nil {
@@ -191,6 +282,7 @@ func main() {
 	}
 
 	defer db.Close()
+	fmt.Println("194")
 
 	rows, err := db.Query("SELECT * FROM users_test")
 	if err != nil {
@@ -199,6 +291,8 @@ func main() {
 
 	defer rows.Close()
 	var userResult []dbEntry
+	fmt.Println("203")
+
 	for rows.Next() {
 		user := dbEntry{}
 		if err := rows.Scan(&user.id, &user.token, &user.name, &user.rating); err != nil {
@@ -215,6 +309,9 @@ func main() {
 	http.HandleFunc("/api/NameAndRating/", getNameAndRating)
 	http.HandleFunc("/api/Register/", registerAccount)
 	http.HandleFunc("/api/CheckDeplicateName/", checkDeplicateName)
+	http.HandleFunc("/api/GetCpuRating/", getCpuRating)
+	http.HandleFunc("/api/SetCpuRating/", setCpuRating)
+
 	log.Fatal(http.ListenAndServeTLS(":8080", "/etc/letsencrypt/archive/tmapiserver.yumarun.net/fullchain1.pem", "/etc/letsencrypt/archive/tmapiserver.yumarun.net/privkey1.pem", nil))
 
 	fmt.Println("fin")
