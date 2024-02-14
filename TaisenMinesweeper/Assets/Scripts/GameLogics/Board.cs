@@ -123,7 +123,7 @@ public class Board
         }
         else if (_boardType == BoardType.CPUBoardInVsCpuMode)
         {
-            _cellsParentForCPU.transform.position = new Vector3(3.8f, -3f);
+            _cellsParentForCPU.transform.position = new Vector3(3f, -3f);
             _cellsParentForCPU.transform.localScale = Vector3.one * 0.3f;
         }
 
@@ -243,8 +243,7 @@ public class Board
         }
         else
         {
-            // TODO
-            Debug.Log("you misclicked in cpu mode.");
+            //Debug.Log("you misclicked in cpu mode.");
         }
 
     }

@@ -13,6 +13,8 @@ public class ClientNetworkManager: MonoBehaviour
 
     static HybridWebSocket.WebSocket _webSocket;
     static string _opponentIpAddr = "";
+    static string _opponentName = "";
+    static int _opponentRating = -1;
     int _nowBattlingMsgNum = 0;
 
 
@@ -27,6 +29,8 @@ public class ClientNetworkManager: MonoBehaviour
         _onMatchingFinished.AddListener(_gameManager.OnMatchDecided);
 
         _opponentIpAddr = "";
+        _opponentName = "";
+        _opponentRating = -1;
 
     }
 
@@ -41,7 +45,7 @@ public class ClientNetworkManager: MonoBehaviour
     {
         var bytes_str = Encoding.UTF8.GetString(bytes);
 
-        Debug.Log("WebSocket message received: " + bytes_str);
+        //Debug.Log("WebSocket message received: " + bytes_str);
         string[] msgsp = bytes_str.Split('\n');
 
         
@@ -63,6 +67,8 @@ public class ClientNetworkManager: MonoBehaviour
         else if (msgsp[0] == "match!op:")
         {
             _opponentIpAddr = msgsp[1];
+            _opponentName = msgsp[2];
+            _opponentRating = int.Parse(msgsp[3]);
             Debug.Log($"Matchi finished. OppenentAddr: {_opponentIpAddr}");
             _onMatchingFinished.Invoke();
         }
@@ -85,14 +91,23 @@ public class ClientNetworkManager: MonoBehaviour
         }
         else if (msgsp[0] == "SendNewRating")
         {
-            Debug.Log($"newRating set: {msgsp[1]}");
+            //Debug.Log($"newRating set: {msgsp[1]}");
             UserProfileManager.SetNameAndRatingAndToken(UserProfileManager.GetName(), int.Parse(msgsp[1]), UserProfileManager.GetToken());
         }
         else 
         {
-            Debug.Log("unregistered message received ");
+            //Debug.Log("unregistered message received ");
         }
         
+    }
+
+    public static (string, int) GetOpponentNameAndRating()
+    {
+        if (_opponentName == "")
+        {
+            Debug.Log("warning: _opponentName is empty.");
+        }
+        return (_opponentName, _opponentRating);
     }
 
 

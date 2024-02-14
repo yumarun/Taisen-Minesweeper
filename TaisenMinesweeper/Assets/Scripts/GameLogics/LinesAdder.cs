@@ -29,13 +29,12 @@ public class LinesAdder
             return;
         }
 
-        Debug.Log($"AddLines() called. Length: {addedLinesLength}");
+        //Debug.Log($"AddLines() called. Length: {addedLinesLength}");
 
         // ボードの上から3行に未開封のマスがあった場合，プレイヤーは負け
         var (safeMinesNum, unsafeMinesNum) = board.GetExsitingMinesCountInSquare(0, Board.BoardHeight - 1, Board.BoardWidth - 1, Board.BoardHeight - addedLinesLength);
         if (unsafeMinesNum != 0)
         {
-            Debug.Log("未開封のマスがありプレイヤーのまけ");
             if (_boardType == Board.BoardType.UserBoardInOnlineMode)
             {
                 ClientNetworkManager.SendWinOrLoseResult(false);

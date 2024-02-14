@@ -82,7 +82,7 @@ public class MinesweeperManager : MonoBehaviour
             GoingInit = false;
             _initializeFinished = true;
             _doingReadyGo = true;
-            Debug.Log("Initizalize finished.");
+            //Debug.Log("Initizalize finished.");
         }
 
         if (_doingReadyGo)

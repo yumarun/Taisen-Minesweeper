@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: CellImages
   m_EditorClassIdentifier: 
   _unOpenedUnflagedImage: {fileID: 21300000, guid: afd3dbe75d3aa9c4582330ffd80172df, type: 3}
-  _unOpenedFlagedImage: {fileID: 21300000, guid: 8896198533a62ab4e87295618180e61e, type: 3}
+  _unOpenedFlagedImage: {fileID: 21300000, guid: 64f33d2372abc804ab49deb2d2237d70, type: 3}
   _numberImages:
   - {fileID: 21300000, guid: 0362cd915fabde747acce269232347cf, type: 3}
   - {fileID: 21300000, guid: 6c8c531806c54994db7522aac488587f, type: 3}

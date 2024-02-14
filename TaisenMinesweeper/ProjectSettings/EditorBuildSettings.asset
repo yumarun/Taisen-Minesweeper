@@ -17,4 +17,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Rules.unity
     guid: 781778a8f261cfb48a3bc5da1c09ce7a
+  - enabled: 1
+    path: Assets/Scenes/Ranking.unity
+    guid: 26b11a751a604d448989f3a0d684641d
   m_configObjects: {}

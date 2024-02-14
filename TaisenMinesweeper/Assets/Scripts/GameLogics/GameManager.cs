@@ -68,6 +68,16 @@ public class GameManager : MonoBehaviour
     UserProfileManager _userProfileManager;
 
 
+    [SerializeField]
+    GameObject _opponentProfilePanel;
+
+    [SerializeField]
+    TextMeshProUGUI _opponentNameText;
+
+    [SerializeField]
+    TextMeshProUGUI _opponentRatingText;
+
+
     void Start()
     {
         if (UserProfileManager.IsProfileSet())
@@ -119,6 +129,8 @@ public class GameManager : MonoBehaviour
         {
             _onMatchDecided = false;
             _waitingOpponentPanel.SetActive(false);
+            SetOpponentProfileToDisplay();
+            _opponentProfilePanel.SetActive(true);
         }
 
         if (_onGameFinished >= 1)
@@ -206,6 +218,16 @@ public class GameManager : MonoBehaviour
         _minesweeperManager.GoingInit = true;
         _minesweeperManager.AmountOfInitOpeningLines = _amountOfInitOpeningLines;
         _minimapManager.GoCreateMinimap = true;
+
+    }
+
+    void SetOpponentProfileToDisplay()
+    {
+        string name;
+        int rating;
+        (name, rating) = ClientNetworkManager.GetOpponentNameAndRating();
+        _opponentNameText.text = name;
+        _opponentRatingText.text = rating.ToString();
     }
 
     public void OnOpponentBoardSent(int[] board, int addedLinesLength)
@@ -334,5 +356,8 @@ public class GameManager : MonoBehaviour
         _googleAuth.TryAuthorize();
     }
 
-    
+    public void GoRankingScene()
+    {
+        SceneManager.LoadScene("Ranking");
+    }
 }
